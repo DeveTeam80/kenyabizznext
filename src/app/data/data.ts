@@ -116,7 +116,9 @@ export interface ListData {
         youtube?: string;
         whatsapp?: string;
         tiktok?: string;
-    };
+    }; 
+    
+    
     seo?: {
         title?: string;
         description?: string;
