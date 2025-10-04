@@ -26,6 +26,14 @@ interface MetaDataItem {
   twitterImage?: string;
   author?: string;
   robots?: string;
+  // AI Agent Optimization
+  aiAgent?: {
+    intent?: string;
+    entities?: string[];
+    topics?: string[];
+    questionAnswer?: Array<{ question: string; answer: string }>;
+    conversationalHooks?: string[];
+  };
 }
 
 interface MetaDataCollection {
@@ -43,6 +51,14 @@ interface CustomSEOData extends Partial<MetaDataItem> {
   businessCategory?: string;
   businessImages?: string[];
   jsonLd?: any | any[];
+  // AI Agent specific data
+  aiAgent?: {
+    intent?: string;
+    entities?: string[];
+    topics?: string[];
+    questionAnswer?: Array<{ question: string; answer: string }>;
+    conversationalHooks?: string[];
+  };
 }
 
 interface SocialLinks {
@@ -191,6 +207,97 @@ function generateMetaDescription(
   
   const cleanDesc = description.substring(0, 120).trim();
   return `${cleanDesc} in ${location}. Find${categoryText} ${benefits.join(', ')} and more. Connect with ${businessName} today!`;
+}
+
+/**
+ * Generates AI agent optimized content for better discoverability
+ */
+function generateAIAgentData(
+  businessName: string,
+  category: string,
+  location: string,
+  description: string,
+  type: 'listing' | 'category' | 'location' = 'listing'
+): {
+  intent: string;
+  entities: string[];
+  topics: string[];
+  questionAnswer: Array<{ question: string; answer: string }>;
+  conversationalHooks: string[];
+} {
+  const entities = [businessName, category, location, 'Kenya', 'business directory'];
+  const topics = [category.toLowerCase(), 'business services', 'local directory', 'Kenya business'];
+  
+  let intent = '';
+  let questionAnswer: Array<{ question: string; answer: string }> = [];
+  let conversationalHooks: string[] = [];
+
+  switch (type) {
+    case 'listing':
+      intent = `Find information about ${businessName}, a ${category} business in ${location}, Kenya`;
+      questionAnswer = [
+        {
+          question: `What is ${businessName}?`,
+          answer: `${businessName} is a ${category} business located in ${location}, Kenya. ${description.substring(0, 200)}...`
+        },
+        {
+          question: `Where is ${businessName} located?`,
+          answer: `${businessName} is located in ${location}, Kenya. You can find their exact address and contact details on our directory.`
+        },
+        {
+          question: `What services does ${businessName} offer?`,
+          answer: `${businessName} offers ${category} services in ${location}. For detailed information about their services, contact them directly.`
+        }
+      ];
+      conversationalHooks = [
+        `Looking for ${category} in ${location}? Check out ${businessName}`,
+        `Find the best ${category} services with ${businessName}`,
+        `Connect with ${businessName} for professional ${category} in ${location}`
+      ];
+      break;
+      
+    case 'category':
+      intent = `Find ${category} businesses and services in Kenya`;
+      questionAnswer = [
+        {
+          question: `What ${category} businesses are available in Kenya?`,
+          answer: `Our directory features verified ${category} businesses across Kenya. Browse our comprehensive listings to find the right service provider for your needs.`
+        },
+        {
+          question: `How do I find the best ${category} company?`,
+          answer: `Use our directory to compare ${category} businesses by location, reviews, and services offered. All listings include contact details and verification status.`
+        }
+      ];
+      conversationalHooks = [
+        `Discover top ${category} businesses in Kenya`,
+        `Find verified ${category} services near you`,
+        `Browse our comprehensive ${category} directory`
+      ];
+      break;
+      
+    case 'location':
+      intent = `Find businesses and services in ${location}, Kenya`;
+      questionAnswer = [
+        {
+          question: `What businesses are available in ${location}?`,
+          answer: `Our directory features various businesses in ${location}, Kenya including restaurants, services, shops, and more. Browse by category to find what you need.`
+        }
+      ];
+      conversationalHooks = [
+        `Explore businesses in ${location}, Kenya`,
+        `Find local services in ${location}`,
+        `Discover what ${location} has to offer`
+      ];
+      break;
+  }
+
+  return {
+    intent,
+    entities: [...new Set(entities)],
+    topics: [...new Set(topics)],
+    questionAnswer,
+    conversationalHooks
+  };
 }
 
 // ============================================================================
@@ -409,6 +516,127 @@ function buildFAQSchema(listing: any): object | null {
   };
 }
 
+/**
+ * Builds AI agent optimized schema for better discoverability
+ */
+function buildAIAgentSchema(
+  businessName: string,
+  category: string,
+  location: string,
+  description: string,
+  type: 'listing' | 'category' | 'location' = 'listing'
+): object[] {
+  const aiData = generateAIAgentData(businessName, category, location, description, type);
+  
+  return [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      name: businessName,
+      description: description,
+      about: {
+        '@type': 'Thing',
+        name: category,
+        description: `${category} services in ${location}, Kenya`
+      },
+      mainEntity: {
+        '@type': 'Organization',
+        name: businessName,
+        address: {
+          '@type': 'PostalAddress',
+          addressLocality: location,
+          addressCountry: 'KE'
+        },
+        knowsAbout: aiData.topics,
+        sameAs: aiData.entities
+      },
+      // AI Agent specific properties
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: {
+          '@type': 'EntryPoint',
+          urlTemplate: `${seoConfig.siteUrl}/search?q={search_term_string}`,
+          actionPlatform: [
+            'https://schema.org/DesktopWebPlatform',
+            'https://schema.org/MobileWebPlatform'
+          ]
+        },
+        'query-input': 'required name=search_term_string'
+      }
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'QAPage',
+      mainEntity: {
+        '@type': 'Question',
+        name: `What is ${businessName}?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: aiData.questionAnswer[0]?.answer || description
+        }
+      }
+    },
+    // Knowledge Graph optimization
+    {
+      '@context': 'https://schema.org',
+      '@type': 'ItemList',
+      name: `${category} in ${location}`,
+      description: `Directory of ${category} businesses in ${location}, Kenya`,
+      itemListElement: aiData.entities.map((entity, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: entity,
+        item: {
+          '@type': 'Thing',
+          name: entity,
+          description: `${entity} related to ${category} in ${location}`
+        }
+      }))
+    }
+  ];
+}
+
+/**
+ * Builds HowTo schema for business processes
+ */
+function buildHowToSchema(listing: any): object | null {
+  if (!listing.title || !listing.contentBlocks) return null;
+
+  const category = listing.categories?.[0]?.name || listing.subCategory || 'services';
+  
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: `How to work with ${listing.title}`,
+    description: `Learn how to engage with ${listing.title} for ${category} services`,
+    step: [
+      {
+        '@type': 'HowToStep',
+        name: 'Contact',
+        text: `Contact ${listing.title} using the provided phone number or email`,
+        url: `${seoConfig.siteUrl}/listings/${category}/${listing.slug}`
+      },
+      {
+        '@type': 'HowToStep',
+        name: 'Visit',
+        text: `Visit their location in ${listing.city || listing.location}`,
+        url: listing.locations?.[0]?.mapEmbedUrl
+      },
+      {
+        '@type': 'HowToStep',
+        name: 'Services',
+        text: `Discuss your ${category} requirements and get a quote`
+      }
+    ],
+    totalTime: 'PT1H',
+    estimatedCost: {
+      '@type': 'MonetaryAmount',
+      currency: 'KES',
+      value: 'Contact for pricing'
+    }
+  };
+}
+
 // ============================================================================
 // DYNAMIC SCHEMA AND ROUTE MAPPINGS
 // ============================================================================
@@ -513,15 +741,29 @@ export async function generateSEOMetadata(
 
     category: customData.businessCategory || 'Business Directory',
     
-    ...(schema || customData.jsonLd ? {
       other: {
+      ...(schema || customData.jsonLd ? {
         'script:ld+json': JSON.stringify(
           Array.isArray(customData.jsonLd)
             ? (schema ? [schema, ...customData.jsonLd] : customData.jsonLd)
             : (customData.jsonLd ? (schema ? [schema, customData.jsonLd] : customData.jsonLd) : schema)
         ),
-      },
-    } : {}),
+      } : {}),
+      // AI Agent optimization meta tags
+      ...(customData.aiAgent || finalMeta.aiAgent ? {
+        'ai-agent-intent': (customData.aiAgent || finalMeta.aiAgent)?.intent || '',
+        'ai-agent-entities': (customData.aiAgent || finalMeta.aiAgent)?.entities?.join(',') || '',
+        'ai-agent-topics': (customData.aiAgent || finalMeta.aiAgent)?.topics?.join(',') || '',
+        'ai-agent-conversational-hooks': (customData.aiAgent || finalMeta.aiAgent)?.conversationalHooks?.join('|') || '',
+      } : {}),
+      // Additional AI-friendly meta tags
+      'content-language': 'en-KE',
+      'geo.region': 'KE',
+      'geo.country': 'Kenya',
+      'distribution': 'global',
+      'rating': 'general',
+      'revisit-after': '1 day',
+    },
   };
 
   return metadata;
@@ -631,6 +873,9 @@ export async function generateCategoryPageSEOMetadata(
     buildListItemSchema(listing, index, categorySlug)
   );
 
+  // Generate AI agent data for category pages
+  const aiAgentData = generateAIAgentData(normalizedName, normalizedName, 'Kenya', description, 'category');
+  
   // Build comprehensive JSON-LD
   const jsonLd = [
     ...(categorySchema 
@@ -669,7 +914,9 @@ export async function generateCategoryPageSEOMetadata(
       itemListOrder: 'http://schema.org/ItemListOrderAscending',
       numberOfItems: totalItems,
       ...(itemListElements.length > 0 && { itemListElement: itemListElements })
-    }
+    },
+    // AI Agent optimization schemas
+    ...buildAIAgentSchema(normalizedName, normalizedName, 'Kenya', description, 'category')
   ];
 
   return generateSEOMetadata(pathname, {
@@ -679,7 +926,8 @@ export async function generateCategoryPageSEOMetadata(
     canonical: `${seoConfig.siteUrl}${pathname}`,
     ogTitle: pageTitle,
     ogDescription: pageDescription,
-    jsonLd
+    jsonLd,
+    aiAgent: aiAgentData
   });
 }
 
@@ -738,11 +986,23 @@ export async function generateListingPageSEOMetadata(
     // No custom schema - will use dynamic generation
   }
 
+  // Generate AI agent data for listing pages
+  const aiAgentData = generateAIAgentData(
+    listing.title, 
+    category || categorySlug, 
+    location, 
+    listing.desc || desc, 
+    'listing'
+  );
+
   // Build organization schema using consolidated builder
   const orgSchema = buildOrganizationSchema(listing, canonical, context);
 
   // Build FAQ schema
   const faqSchema = buildFAQSchema(listing);
+
+  // Build HowTo schema
+  const howToSchema = buildHowToSchema(listing);
 
   // Build breadcrumbs
   const breadcrumbSchema = buildBreadcrumbSchema([
@@ -768,7 +1028,10 @@ export async function generateListingPageSEOMetadata(
     ),
     orgSchema,
     breadcrumbSchema,
-    ...(faqSchema ? [faqSchema] : [])
+    ...(faqSchema ? [faqSchema] : []),
+    ...(howToSchema ? [howToSchema] : []),
+    // AI Agent optimization schemas
+    ...buildAIAgentSchema(listing.title, category || categorySlug, location, listing.desc || desc, 'listing')
   ];
 
   // Generate rich keywords
@@ -801,7 +1064,8 @@ export async function generateListingPageSEOMetadata(
       listing.image
     ),
     robots: preset?.robots ?? seoOverrides.robots ?? 'index, follow',
-    jsonLd
+    jsonLd,
+    aiAgent: aiAgentData
   });
 }
 
