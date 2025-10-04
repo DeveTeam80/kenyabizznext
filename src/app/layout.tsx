@@ -3,6 +3,7 @@ import 'bootstrap/dist/css/bootstrap.css'
 import './style/scss/style.scss'
 import 'animate.css/animate.css'
 import Script from 'next/script';
+import { Analytics } from "@vercel/analytics/next"
 
 
 // export const metadata: Metadata = {
@@ -34,6 +35,7 @@ export default function RootLayout({
         />
       </head>
       <body>
+        <Analytics />
         {children}
         <Script
           src="https://app.visionarybizz.com/js/form_embed.js"
