@@ -297,7 +297,7 @@ function buildOrganizationSchema(
     name: listing.title,
     url,
     image: toAbsoluteUrl(listing.image),
-    logo: toAbsoluteUrl('/assets/img/logo/fav.png'),
+    logo: toAbsoluteUrl('/img/logo/fav.png'),
     description: listing.fullDescription?.[0] || listing.desc || `${listing.title} - Professional business services in Kenya`,
     ...(address && { address }),
     ...(telephone && { telephone }),
@@ -473,9 +473,9 @@ export async function generateSEOMetadata(
     },
 
     icons: {
-      icon: '/assets/img/logo/fav.png',
-      shortcut: '/assets/img/logo/fav.png',
-      apple: '/assets/img/logo/fav.png',
+      icon: '/img/logo/fav.png',
+      shortcut: '/img/logo/fav.png',
+      apple: '/img/logo/fav.png',
     },
 
     openGraph: {

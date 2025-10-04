@@ -35,8 +35,8 @@ const NavbarDark: React.FC<NavbarDarkProps> = ({ categories = [] }) => {
 
   // Navigation data with dynamic categories
   const navItems: NavItem[] = [
-    { href: "/#", label: "About" },
-    { href: "/#", label: "Explore Kenya" },
+    { href: "/#about", label: "About" },
+    { href: "/#explore", label: "Explore Kenya" },
     {
       href: "#",
       label: "Listing",
@@ -205,12 +205,12 @@ const NavbarDark: React.FC<NavbarDarkProps> = ({ categories = [] }) => {
               </ul>
 
               <ul className="nav-menu nav-menu-social align-to-right">
-                <li>
+                {/* <li>
                   <Link href="#login" className="d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#login">
                     <BsPersonCircle className="fs-6 me-1" />
                     <span className="navCl">Sign In / Sign Up</span>
                   </Link>
-                </li>
+                </li> */}
                 <li className="list-buttons">
                   <Link href="/add-listing" onClick={closeMobileMenu}>
                     <BsGeoAlt className="fs-6 me-1" />

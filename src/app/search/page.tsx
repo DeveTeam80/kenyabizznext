@@ -2,7 +2,8 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
-import NavbarDark from '@/app/components/navbar/navbar-dark';
+// import NavbarDark from '@/app/components/navbar/navbar-dark'
+import NavbarServerWrapper from '@/app/components/navbar/navabar-server'
 import ListSidebarOne from '@/app/components/list-sidebar-one';
 import FooterTop from '@/app/components/footer-top';
 import Footer from '@/app/components/footer/footer';
@@ -90,7 +91,7 @@ export default async function SearchPage({
 
     return (
         <>
-            <NavbarDark />
+            <NavbarServerWrapper />
 
             {/* Breadcrumb */}
             <section className="py-3 bg-light border-bottom">

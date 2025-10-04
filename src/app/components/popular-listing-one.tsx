@@ -6,6 +6,7 @@ import { BsStars } from 'react-icons/bs';
 
 // Import the data and the type from your single data file
 import { listData, ListData as ListType } from '../data/data';
+import { ListingContext } from '../lib/data';
 
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination } from 'swiper/modules';
@@ -14,15 +15,70 @@ import 'swiper/css/pagination';
 
 import { BsGeoAlt, BsPatchCheckFill, BsSuitHeart, BsTelephone } from 'react-icons/bs';
 
-export default function PopularListingOne() {
+interface PopularListingOneProps {
+    context?: ListingContext;
+}
+
+/**
+ * PopularListingOne Component
+ * 
+ * Displays featured listings in a carousel format with dynamic URL routing.
+ * 
+ * @param context - The listing context to determine which listings to show:
+ *   - ListingContext.LOCAL: Shows only Kenyan listings (uses /listings/ URLs)
+ *   - ListingContext.GLOBAL: Shows only non-Kenyan listings (uses /global-listings/ URLs)
+ *   - ListingContext.ALL: Shows all listings (uses /listings/ URLs by default)
+ * 
+ * @example
+ * // For Kenyan listings (default)
+ * <PopularListingOne context={ListingContext.LOCAL} />
+ * 
+ * @example
+ * // For global listings
+ * <PopularListingOne context={ListingContext.GLOBAL} />
+ */
+
+export default function PopularListingOne({ context = ListingContext.LOCAL }: PopularListingOneProps) {
     const ratingStyles = {
         high: 'bg-primary',
         mid: 'bg-warning',
         low: 'bg-danger'
     }
 
-    // Filter to only show featured listings
-    const featuredListings = listData.filter((item: ListType) => item.featured === true);
+    // Helper function to check if a listing is from Kenya (same logic as in data.ts)
+    const isKenyanListing = (listing: ListType): boolean => {
+        const KENYAN_LOCATIONS = [
+            'nairobi', 'mombasa', 'kisumu', 'nakuru', 'eldoret', 'thika', 'malindi', 'garissa',
+            'kitale', 'machakos', 'meru', 'nyeri', 'kericho', 'embu', 'migori', 'kakamega',
+            'bungoma', 'kilifi', 'voi', 'kitui', 'kapenguria', 'homa bay', 'kisii', 'lamu',
+            'marsabit', 'wajir', 'mandera', 'isiolo', 'nanyuki', 'nyahururu', 'karatina'
+        ];
+        
+        const cityLower = listing.city.toLowerCase();
+        const locationLower = listing.location.toLowerCase();
+        
+        return KENYAN_LOCATIONS.some(kenyanCity => 
+            cityLower.includes(kenyanCity) || locationLower.includes(kenyanCity)
+        );
+    };
+
+    // Filter listings based on context and featured status
+    const featuredListings = listData.filter((item: ListType) => {
+        if (!item.featured) return false;
+        
+        if (context === ListingContext.LOCAL) {
+            return isKenyanListing(item);
+        } else if (context === ListingContext.GLOBAL) {
+            return !isKenyanListing(item);
+        }
+        
+        return true; // For ListingContext.ALL
+    });
+
+    // Determine the correct URL prefix based on context
+    const getUrlPrefix = () => {
+        return context === ListingContext.GLOBAL ? '/global-listings' : '/listings';
+    };
 
     return (
         <div className="row align-items-center justify-content-center">
@@ -54,7 +110,7 @@ export default function PopularListingOne() {
                                         <div className="singlelisting-item uniform-listing-card">
                                             
                                             <div className="listing-top-item">
-                                                <Link href={`/listings/${displayCategory?.slug}/${item.slug}`} className="topLink">
+                                                <Link href={`${getUrlPrefix()}/${displayCategory?.slug}/${item.slug}`} className="topLink">
                                                     <div className="position-absolute start-0 top-0 ms-3 mt-3 z-2">
                                                         <div className="d-flex align-items-center justify-content-start gap-2">
                                                             <span className={`badge badge-xs text-uppercase ${item.isVerified ? 'listOpen' : 'listClose'}`}>
@@ -76,7 +132,7 @@ export default function PopularListingOne() {
                                                 </Link>
                                                 <div className="position-absolute end-0 bottom-0 me-3 mb-3 z-2">
                                                     <Link 
-                                                        href={`/listings/${displayCategory?.slug}/${item.slug}`} 
+                                                        href={`${getUrlPrefix()}/${displayCategory?.slug}/${item.slug}`} 
                                                         className="bookmarkList" 
                                                         data-bs-toggle="tooltip" 
                                                         data-bs-title="Save Listing"
@@ -89,7 +145,7 @@ export default function PopularListingOne() {
                                             <div className="listing-middle-item">
                                                 <div className="listing-details">
                                                     <h4 className="listingTitle">
-                                                        <Link href={`/listings/${displayCategory?.slug}/${item.slug}`} className="titleLink">
+                                                        <Link href={`${getUrlPrefix()}/${displayCategory?.slug}/${item.slug}`} className="titleLink">
                                                             {item.title}
                                                             {item.isVerified && (
                                                                 <span className="verified">
@@ -117,7 +173,7 @@ export default function PopularListingOne() {
                                                     <div className="catdWraps">
                                                         <div className="flex-start">
                                                             <Link 
-                                                                href={`/listings/${displayCategory?.slug}/${item.slug}`} 
+                                                                href={`${getUrlPrefix()}/${displayCategory?.slug}/${item.slug}`} 
                                                                 className="d-flex align-items-center justify-content-start gap-2"
                                                             >
                                                                 <span className="catTitle">{displayCategory?.name || item.subCategory}</span>

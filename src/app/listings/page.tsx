@@ -236,7 +236,7 @@ export default async function AllListingsPage({
                                                                     </h4>
                                                                     <p>{item.desc}</p>
                                                                 </div>
-                                                                <div className="listing-info-details">
+                                                                {/* <div className="listing-info-details">
                                                                     <div className="d-flex align-items-center justify-content-start gap-4">
                                                                         <div className="list-calls">
                                                                             <BsTelephone className="mb-0 me-2" />{item.call}
@@ -245,7 +245,7 @@ export default async function AllListingsPage({
                                                                             <BsGeoAlt className="mb-0 me-2" />{item.location}
                                                                         </div>
                                                                     </div>
-                                                                </div>
+                                                                </div> */}
                                                             </div>
                                                             <div className="listing-footer-item">
                                                                 <div className="d-flex align-items-center justify-content-between gap-2">

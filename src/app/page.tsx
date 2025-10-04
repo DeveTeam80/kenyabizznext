@@ -10,6 +10,7 @@ import FormTwo from "./components/form/form-two";
 import ExploreCity from "./components/explore-city";
 import HowItsWork from "./components/how-its-work";
 import WorkingProcessTwo from "./components/working-process-two";
+import { ListingContext } from "./lib/data";
 
 export async function generateMetadata() {
     return await generateSEOMetadata('/');
@@ -61,7 +62,7 @@ export default function Home() {
                             </div>
                         </div>
                     </div>
-                    <PopularListingOne />
+                    <PopularListingOne context={ListingContext.LOCAL} />
                 </div>
             </section>
             {/* <section className="bg-light">
