@@ -1,0 +1,103 @@
+{
+  "home": {
+    "title": "Top Business Listing Directory in Kenya | Kenyabizz Directory",
+    "description": "Find trusted businesses across Kenya with our comprehensive business directory. Discover contacts, locations, reviews, and services all in one place.",
+    "keywords": "Kenya business directory,business listings Kenya,Nairobi businesses,Mombasa companies,Kisumu services,verified businesses Kenya,local business directory",
+    "canonical": "https://www.kenyabizzdirectory.com/",
+    "ogImage": "/assets/img/logo/og-home.png",
+    "ogTitle": "Kenya's Leading Business Directory | Kenyabizz Directory",
+    "ogDescription": "Explore verified business listings in Kenya. Search by category, location, or name to connect with reliable companies and services near you.",
+    "ogType": "website",
+    "author": "Kenya Bizz Directory",
+    "robots": "index, follow"
+  },
+  "about": {
+    "title": "About Us - Kenya Bizz Directory",
+    "description": "Learn about Kenya Bizz Directory - your gateway to discovering trusted businesses across Kenya from Nairobi to Mombasa and beyond.",
+    "keywords": "about Kenya Bizz Directory,business directory Kenya,local businesses Kenya",
+    "canonical": "https://www.kenyabizzdirectory.com/about",
+    "author": "Kenya Bizz Directory",
+    "robots": "index, follow"
+  },
+  "all-listings": {
+    "title": "All Business Listings in Kenya | Kenya Bizz Directory",
+    "description": "Browse all verified business listings across Kenya. Find companies, services, and suppliers in Nairobi, Mombasa, Kisumu and other cities.",
+    "keywords": "all business listings Kenya,Kenya companies,business directory,verified listings",
+    "canonical": "https://www.kenyabizzdirectory.com/all-listings",
+    "author": "Kenya Bizz Directory",
+    "robots": "index, follow"
+  },
+  "shops-suppliers": {
+    "title": "Shops and Suppliers in Kenya | Retail & Wholesale Directory",
+    "description": "Find Top Shops & Suppliers in Kenya - Verified Listings for Retail, Wholesale & More. Connect with trusted suppliers nationwide.",
+    "keywords": "shops Kenya,suppliers Kenya,retail directory,wholesale suppliers Kenya",
+    "canonical": "https://www.kenyabizzdirectory.com/shops-and-suppliers/main",
+    "author": "Kenya Bizz Directory",
+    "robots": "index, follow"
+  }
+  ,
+  "global-listings": {
+    "title": "Global Business Listings | International Companies & Services",
+    "description": "Explore international business listings. Find companies and services across countries with contact details and categories.",
+    "keywords": "global business directory,international listings,worldwide companies,global services",
+    "canonical": "https://www.kenyabizzdirectory.com/global-listings",
+    "author": "Kenya Bizz Directory",
+    "robots": "index, follow"
+  },
+  "add-listing": {
+    "title": "Add Your Business | List on Kenya Bizz Directory",
+    "description": "Submit your business to Kenya Bizz Directory. Get discovered by customers searching for services near them.",
+    "keywords": "add business Kenya,submit listing,business sign up,list company Kenya",
+    "canonical": "https://www.kenyabizzdirectory.com/add-listing",
+    "author": "Kenya Bizz Directory",
+    "robots": "noindex, follow"
+  }
+  ,
+  "manufacturing": {
+    "title": "Listing Directory for Manufacturers in Kenya | Kenyabizz Directory",
+    "description": "Discover Kenya’s top business directory for finding and connecting with reliable manufacturers, real estate firms, and service providers.",
+    "keywords": "manufacturers Kenya,industrial suppliers Kenya,manufacturing directory Kenya,manufacturing companies Nairobi",
+    "canonical": "https://www.kenyabizzdirectory.com/listings/manufacturing",
+    "author": "Kenya Bizz Directory",
+    "robots": "index, follow",
+    "ogTitle": "Kenya’s Best Listing Directory For Manufacturers | Kenyabizz Directory",
+    "ogDescription": "Explore verified business listings across Kenya. From manufacturing to real estate, find and connect with industry leaders with ease.",
+    "ogType": "website"
+  }
+  ,
+  "real-estate": {
+    "title": "Best Real Estate Listing Directory in Kenya | Kenyabizz Directory",
+    "description": "Discover Kenya’s top real estate directory for buying, renting, or selling property. Search listings for homes, land, apartments, and commercial spaces across the country.",
+    "keywords": "real estate Kenya,property listings Kenya,buy house Nairobi,rent apartments Kenya,land for sale Kenya",
+    "canonical": "https://www.kenyabizzdirectory.com/listings/real-estate",
+    "author": "Kenya Bizz Directory",
+    "robots": "index, follow",
+    "ogTitle": "Kenya’s #1 Real Estate Directory - Find Your Ideal Property",
+    "ogDescription": "Explore verified property listings across Kenya. From homes to commercial spaces, find and connect with real estate agents, sellers, and landlords with ease.",
+    "ogType": "website"
+  }
+  ,
+  "services": {
+    "title": "Top Service Industry Listing Directory in Kenya | Kenyabizz Directory",
+    "description": "Find the best professional services in Kenya and East Africa. Browse our directory for trusted financial advisors, travel agencies, and more.",
+    "keywords": "services Kenya,professional services Kenya,advisory firms Kenya,tour operators Kenya",
+    "canonical": "https://www.kenyabizzdirectory.com/listings/services",
+    "author": "Kenya Bizz Directory",
+    "robots": "index, follow",
+    "ogTitle": "Professional Services Directory in Kenya | Kenyabizz",
+    "ogDescription": "Connect with leading service providers in East Africa. From financial and advisory firms to expert tour operators, find the partner you need.",
+    "ogType": "website"
+  }
+  ,
+  "shops-and-suppliers": {
+    "title": "Top Shops & Suppliers in Kenya | Kenyabizz Directory",
+    "description": "Find the best shops, hardware stores, electronics suppliers, and more in Kenya. Browse our directory for quality products and trusted vendors.",
+    "keywords": "shops Kenya,suppliers Kenya,hardware Kenya,electronics suppliers Kenya",
+    "canonical": "https://www.kenyabizzdirectory.com/listings/shops-and-suppliers",
+    "author": "Kenya Bizz Directory",
+    "robots": "index, follow",
+    "ogTitle": "Shops & Suppliers Directory - Kenya | Kenyabizz",
+    "ogDescription": "Connect with leading suppliers in Kenya. From hardware and electronics to apparel, find everything you need on Kenyabizz Directory.",
+    "ogType": "website"
+  }
+}

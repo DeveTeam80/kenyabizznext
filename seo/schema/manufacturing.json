@@ -1,0 +1,65 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "LocalBusiness",
+      "@id": "https://www.kenyabizzdirectory.com/#localbusiness",
+      "name": "Kenyabizz Directory",
+      "url": "https://www.kenyabizzdirectory.com/",
+      "image": "https://www.kenyabizzdirectory.com/assets/img/logo/logoa.png",
+      "logo": "https://www.kenyabizzdirectory.com/assets/img/logo/logoa.png",
+      "description": "Kenya’s business directory connecting buyers with verified companies across manufacturing, real estate, shops and suppliers, and services.",
+      "category": "Business Directory",
+      "areaServed": [
+        { "@type": "Country", "name": "Kenya" },
+        { "@type": "Country", "name": "Uganda" },
+        { "@type": "Country", "name": "Tanzania" },
+        { "@type": "Country", "name": "United Arab Emirates" },
+        { "@type": "Country", "name": "India" }
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://www.kenyabizzdirectory.com/#website",
+      "url": "https://www.kenyabizzdirectory.com/",
+      "name": "Kenyabizz Directory",
+      "inLanguage": "en",
+      "publisher": { "@id": "https://www.kenyabizzdirectory.com/#localbusiness" },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://www.kenyabizzdirectory.com/listings/manufacturing?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@type": "CollectionPage",
+      "@id": "https://www.kenyabizzdirectory.com/listings/manufacturing#webpage",
+      "url": "https://www.kenyabizzdirectory.com/listings/manufacturing",
+      "name": "Business Directory for Manufacturers in Kenya | Kenyabizz Directory",
+      "isPartOf": { "@id": "https://www.kenyabizzdirectory.com/#website" },
+      "about": { "@id": "https://www.kenyabizzdirectory.com/#localbusiness" },
+      "inLanguage": "en",
+      "description": "Discover Kenya’s top business directory for finding and connecting with reliable manufacturers and industry suppliers.",
+      "primaryImageOfPage": {
+        "@type": "ImageObject",
+        "url": "https://www.kenyabizzdirectory.com/assets/img/manufacturing/manufacturing-banner-grid.jpg"
+      },
+      "breadcrumb": {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.kenyabizzdirectory.com/" },
+          { "@type": "ListItem", "position": 2, "name": "Manufacturers", "item": "https://www.kenyabizzdirectory.com/listings/manufacturing" }
+        ]
+      },
+      "mainEntity": { "@id": "https://www.kenyabizzdirectory.com/listings/manufacturing#manufacturers-list" }
+    },
+    {
+      "@type": "ItemList",
+      "@id": "https://www.kenyabizzdirectory.com/listings/manufacturing#manufacturers-list",
+      "name": "Manufacturers Listings",
+      "itemListOrder": "http://schema.org/ItemListOrderAscending"
+    }
+  ]
+}
+
+

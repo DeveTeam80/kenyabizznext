@@ -1,0 +1,44 @@
+// scss-docs-start theme-color-variables Customize your color option here
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,900&display=swap");
+
+:root,
+[data-bs-theme=light] {
+// Primary colors
+--bs-primary: #146835; // Old: --mainColor
+--bs-primary-rgb: 20, 104, 53;
+--bs-primary-text-emphasis: #146835;
+--bs-primary-bg-subtle: #d3eadb;
+--bs-primary-bg-dark: #125e30;
+--bs-primary-border-subtle: #c71f37;
+--bs-primary-2: #1a8242;
+
+
+// Body and text colors
+--bs-body-bg: #ffffff;
+--bs-body-bg-rgb: 255, 255, 255;
+--bs-body-color: #2a2a2a; // Old: --titleColor
+--paragraphColor: #8c8c8c; // Old: --paragraphColor
+--bs-muted: #8c8c8c;
+--bs-muted-2: #8c8c8c;
+--bs-dark-text: #2a2a2a;
+--headingColor: #2a2a2a;
+--bs-link-color: #2a2a2a;
+--bs-link-color-rgb: 42, 42, 42;
+--bs-link-hover-color: #146835;
+--bs-link-hover-color-rgb: 20, 104, 53;
+--bs-link-decoration: none;
+
+// Other utility colors
+--bs-white: #ffffff;
+--bs-card-bg: #ffffff;
+--bs-light: #f7f7f7;
+--bs-dark: #212529;
+--bs-code-color: #146835;
+--bs-highlight-bg: #fff3cd;
+--bs-border-color: #efefef;
+--bs-danger-bg-subtle: #ffdee2;
+--bs-dashboard-bg: #2e3338;
+
+// Font Family
+--body-font-family: 'Poppins', sans-serif;
+}

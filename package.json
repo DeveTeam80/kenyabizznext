@@ -1,0 +1,41 @@
+{
+  "name": "kenyabizzdirectory",
+  "version": "1.0.0",
+  "description": "KenyaBizzDirectory - Next Ts Business Directory & Listing Template",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@react-google-maps/api": "^2.20.6",
+    "animate.css": "^4.1.1",
+    "apexcharts": "^5.3.5",
+    "bootstrap": "^5.3.5",
+    "bootstrap-icons": "^1.13.1",
+    "next": "15.3.1",
+    "rc-slider": "^11.1.8",
+    "react": "^19.0.0",
+    "react-apexcharts": "^1.7.0",
+    "react-countup": "^6.5.3",
+    "react-dom": "^19.0.0",
+    "react-dropzone": "^14.3.8",
+    "react-icons": "^5.5.0",
+    "react-scroll": "^1.9.3",
+    "react-select": "^5.10.2",
+    "sass": "^1.87.0",
+    "swiper": "^11.2.6",
+    "use-debounce": "^10.0.6",
+    "yet-another-react-lightbox": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/react-scroll": "^1.8.10",
+    "@types/react-select": "^5.0.1",
+    "typescript": "^5"
+  }
+}

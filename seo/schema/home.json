@@ -1,0 +1,160 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "LocalBusiness",
+      "@id": "https://www.kenyabizzdirectory.com/#localbusiness",
+      "name": "KenyaBizz Directory",
+      "alternateName": ["Kenya Bizz Directory", "Explore Kenya Bizz"],
+      "url": "https://www.kenyabizzdirectory.com/",
+      "description": "Find trusted businesses across Kenya with our comprehensive business directory. Discover contacts, locations, reviews, and services all in one place.",
+      "category": "Business directory",
+      "image": [
+        "https://www.kenyabizzdirectory.com/assets/img/logo/logoa.png",
+        "https://www.kenyabizzdirectory.com/assets/img/index-aboutus.png"
+      ],
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://www.kenyabizzdirectory.com/assets/img/logo/logoa.png"
+      },
+      "email": "info@kenyabizzdirectory.com",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "KE"
+      },
+      "areaServed": [
+        { "@type": "Country", "name": "Kenya" },
+        { "@type": "City", "name": "Nairobi" },
+        { "@type": "City", "name": "Mombasa" },
+        { "@type": "City", "name": "Kisumu" },
+        { "@type": "City", "name": "Nakuru" }
+      ],
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": [
+            "Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"
+          ],
+          "opens": "09:00",
+          "closes": "18:00"
+        }
+      ],
+      "sameAs": [
+        "https://www.facebook.com/profile.php?id=61579269054692",
+        "https://www.linkedin.com/company/108607908/",
+        "https://www.instagram.com/kenyabizzdirectory/"
+      ],
+      "parentOrganization": {
+        "@type": "Organization",
+        "name": "Visionary Services",
+        "url": "https://visionarybizz.com/"
+      },
+      "knowsAbout": [
+        "Business listings in Kenya",
+        "Real Estate in Kenya",
+        "Manufacturing companies in Kenya",
+        "Shops and suppliers in Kenya",
+        "Nairobi businesses",
+        "Mombasa businesses",
+        "Kisumu businesses",
+        "Nakuru businesses"
+      ],
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Categories",
+        "itemListElement": [
+          {
+            "@type": "OfferCatalog",
+            "name": "Real Estate",
+            "url": "https://www.kenyabizzdirectory.com/real-estate/main",
+            "itemListElement": [
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Real Estate Listings in Kenya"
+                }
+              }
+            ]
+          },
+          {
+            "@type": "OfferCatalog",
+            "name": "Manufacturing Industry",
+            "url": "https://www.kenyabizzdirectory.com/manufacturing/main",
+            "itemListElement": [
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Manufacturing & Industrial Listings"
+                }
+              }
+            ]
+          },
+          {
+            "@type": "OfferCatalog",
+            "name": "Shops and Suppliers",
+            "url": "https://www.kenyabizzdirectory.com/shops-and-suppliers/main",
+            "itemListElement": [
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Retail & Wholesale Listings"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "makesOffer": [
+        {
+          "@type": "Offer",
+          "name": "Add Listing",
+          "url": "https://www.kenyabizzdirectory.com/listing",
+          "availability": "https://schema.org/InStock"
+        }
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://www.kenyabizzdirectory.com/#website",
+      "url": "https://www.kenyabizzdirectory.com/",
+      "name": "KenyaBizz Directory",
+      "inLanguage": "en",
+      "publisher": {
+        "@id": "https://www.kenyabizzdirectory.com/#localbusiness"
+      },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://www.kenyabizzdirectory.com/all-listings?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://www.kenyabizzdirectory.com/#webpage",
+      "url": "https://www.kenyabizzdirectory.com/",
+      "name": "Discover Trusted Business Listings in Kenya | KenyaBizz Directory",
+      "isPartOf": { "@id": "https://www.kenyabizzdirectory.com/#website" },
+      "about": { "@id": "https://www.kenyabizzdirectory.com/#localbusiness" },
+      "primaryImageOfPage": {
+        "@type": "ImageObject",
+        "url": "https://www.kenyabizzdirectory.com/assets/img/index-aboutus.png"
+      },
+      "inLanguage": "en",
+      "breadcrumb": {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://www.kenyabizzdirectory.com/"
+          }
+        ]
+      },
+      "description": "Find trusted businesses across Kenya with our comprehensive business directory. Discover contacts, locations, reviews, and services all in one place."
+    }
+  ]
+}
