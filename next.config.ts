@@ -84,6 +84,10 @@ const nextConfig: NextConfig = {
         source: '/all-listings',
         destination: '/listings',
         permanent: true,
+      },{
+        source: '/listing',
+        destination: '/add-listing',
+        permanent: true,
       }
     ]
   },

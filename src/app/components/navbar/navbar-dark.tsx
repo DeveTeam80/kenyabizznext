@@ -87,10 +87,12 @@ const NavbarDark: React.FC<NavbarDarkProps> = ({ categories = [] }) => {
     }
   }, [handleScroll, handleResize])
 
+  // Close menu on route change
   useEffect(() => {
     closeMobileMenu()
   }, [pathname, closeMobileMenu])
 
+  // Lock body scroll when mobile menu is open
   useEffect(() => {
     if (isMobileMenuOpen && windowWidth <= MOBILE_BREAKPOINT) {
       document.body.style.overflow = 'hidden'
@@ -167,11 +169,11 @@ const NavbarDark: React.FC<NavbarDarkProps> = ({ categories = [] }) => {
 
               <div className="mobile_nav">
                 <ul>
-                  <li>
+                  {/* <li>
                     <Link href="#login" className="d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#login">
                       <BsPersonCircle className="me-1" />
                     </Link>
-                  </li>
+                  </li> */}
                   <li>
                     <Link href="#searchSlider" className="d-flex align-items-center" data-bs-toggle="offcanvas" role="button" aria-controls="searchSlider">
                       <BsSearch className="me-1" />

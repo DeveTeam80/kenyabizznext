@@ -9436,12 +9436,21 @@ footer {
         .caps {
           flex: 1;
           width: auto;
+          max-width: 100%; // Add this
+          overflow: hidden; // Add this
 
           .title {
             font-size: 14px;
             font-weight: 500;
             margin: 0;
             line-height: 1.4;
+            word-break: break-word; // Add this
+            overflow-wrap: break-word; // Add this
+
+            a {
+              word-break: break-all; // Add this for email links
+              display: inline-block; // Add this
+            }
           }
 
           .subs {
