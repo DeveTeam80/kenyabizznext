@@ -2392,7 +2392,7 @@ export const blogData = [
 
 // Link data for the Footer component
 export const footerLink1 = [
-    { label: 'About Us', href: '#' }, // Keep as placeholder since you don't have this page
+    { label: 'About Us', href: '/about-us' }, // Keep as placeholder since you don't have this page
     { label: 'Global Listings', href: '/global-listings' },
     { label: 'Add Listing', href: '/add-listing' }, // Keep as placeholder
     { label: 'Blog', href: '#' } // Keep as placeholder

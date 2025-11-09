@@ -35,7 +35,7 @@ const NavbarDark: React.FC<NavbarDarkProps> = ({ categories = [] }) => {
 
   // Navigation data with dynamic categories
   const navItems: NavItem[] = [
-    { href: "/#about", label: "About" },
+    { href: "/about-us", label: "About" },
     { href: "/#explore", label: "Explore Kenya" },
     {
       href: "#",
