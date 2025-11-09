@@ -7,6 +7,12 @@ interface NavItem {
   submenu?: NavItem[]
 }
 
+// Add this interface for the category type
+interface Category {
+  slug: string
+  name: string
+}
+
 // Function to get unique categories
 async function getCategories(): Promise<NavItem[]> {
   const { listings } = await getListings(ListingContext.LOCAL, {}, 1, 1000);
@@ -14,7 +20,8 @@ async function getCategories(): Promise<NavItem[]> {
   const categoriesMap = new Map();
   
   listings.forEach(listing => {
-    listing.categories.forEach(category => {
+    // Add type annotation here
+    listing.categories.forEach((category: Category) => {
       if (!categoriesMap.has(category.slug)) {
         categoriesMap.set(category.slug, {
           href: `/listings/${category.slug}`,

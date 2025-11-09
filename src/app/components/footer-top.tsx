@@ -9,8 +9,8 @@ export default function FooterTop() {
                 
                 <div className="col-xl-5 col-lg-5 col-md-5">
                     <div className="callsTitles">
-                        <h4 className="text-white mb-0 lh-base">Subscribe Our Newsletter!</h4>
-                        <p className="text-white opacity-75 m-0">Subscribe our marketing platforms for latest updates</p>
+                        <h4 className="text-white mb-0 lh-base">Subscribe to our Newsletter!</h4>
+                        <p className="text-white opacity-75 m-0">Subscribe to our marketing platform for latest updates</p>
                     </div>
                 </div>
                 

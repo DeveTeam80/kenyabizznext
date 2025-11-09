@@ -1,261 +1,327 @@
-import { listData, ListData } from '@/app/data/data';
+// src/app/lib/data.ts
+/**
+ * Data access layer - now uses database APIs internally
+ * This maintains backward compatibility with existing pages
+ */
+/**
+ * Data access layer - now uses database APIs internally
+ * This maintains backward compatibility with existing pages
+ */
 
 export interface FilterParams {
-  subCategory?: string;
-  city?: string;
-  rating?: string;
-  featured?: boolean;
-  verified?: boolean;
-  search?: string;
+  subCategory?: string
+  city?: string
+  rating?: string
+  featured?: boolean
+  verified?: boolean
+  search?: string
 }
 
 interface CategoryDetails {
-  name: string;
-  description: string;
+  name: string
+  description: string
 }
 
-// Create an enum for listing contexts
 export enum ListingContext {
-  LOCAL = 'local',    // Kenyan listings
-  GLOBAL = 'global',  // Non-Kenyan listings  
-  ALL = 'all'         // All listings (admin/internal use)
+  LOCAL = 'local',
+  GLOBAL = 'global',
+  ALL = 'all'
 }
 
-// List of Kenyan cities/locations
-const KENYAN_LOCATIONS = [
-  'nairobi', 'mombasa', 'kisumu', 'nakuru', 'eldoret', 'thika', 'malindi', 'garissa',
-  'kitale', 'machakos', 'meru', 'nyeri', 'kericho', 'embu', 'migori', 'kakamega',
-  'bungoma', 'kilifi', 'voi', 'kitui', 'kapenguria', 'homa bay', 'kisii', 'lamu',
-  'marsabit', 'wajir', 'mandera', 'isiolo', 'nanyuki', 'nyahururu', 'karatina'
-];
-
-// Helper function to check if a listing is from Kenya
-function isKenyanListing(listing: ListData): boolean {
-  const cityLower = listing.city.toLowerCase();
-  const locationLower = listing.location.toLowerCase();
-  
-  return KENYAN_LOCATIONS.some(kenyanCity => 
-    cityLower.includes(kenyanCity) || locationLower.includes(kenyanCity)
-  );
+// 🔥 Helper to get base URL
+function getBaseUrl(): string {
+  if (typeof window !== 'undefined') {
+    return window.location.origin
+  }
+  return process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 }
 
-// Base filtering function
-function filterByLocation(listings: ListData[], context: ListingContext): ListData[] {
-  switch (context) {
-    case ListingContext.LOCAL:
-      return listings.filter(listing => isKenyanListing(listing));
-    case ListingContext.GLOBAL:
-      return listings.filter(listing => !isKenyanListing(listing));
-    case ListingContext.ALL:
-      return listings;
-    default:
-      return listings.filter(listing => isKenyanListing(listing)); // Default to local
-  }
-}
-
-// Apply common filters
-function applyFilters(listings: ListData[], filters: FilterParams): ListData[] {
-  let filteredListings = [...listings];
-
-  if (filters.subCategory && filters.subCategory.length > 0) {
-    filteredListings = filteredListings.filter(listing =>
-      filters.subCategory!.includes(listing.subCategory)
-    );
-  }
-
-  if (filters.city && filters.city.length > 0) {
-    filteredListings = filteredListings.filter(listing =>
-      filters.city!.includes(listing.city)
-    );
-  }
-
-  if (filters.rating) {
-    filteredListings = filteredListings.filter(listing => 
-      listing.rating === filters.rating
-    );
-  }
-
-  if (filters.featured) {
-    filteredListings = filteredListings.filter(listing => listing.featured);
-  }
-
-  if (filters.verified) {
-    filteredListings = filteredListings.filter(listing => listing.isVerified);
-  }
-
-  if (filters.search) {
-    filteredListings = filteredListings.filter(listing => 
-      listing.title.toLowerCase().includes(filters.search!.toLowerCase()) ||
-      listing.desc.toLowerCase().includes(filters.search!.toLowerCase())
-    );
-  }
-
-  return filteredListings;
-}
-
-// Unified function for getting listings
+// 🔥 Main function to get listings from database
 export async function getListings(
   context: ListingContext,
   filters: FilterParams = {},
   page: number = 1,
   itemsPerPage: number = 9,
   categorySlug?: string
-): Promise<{ listings: ListData[], totalPages: number, totalItems: number }> {
-  
-  let filteredListings = filterByLocation(listData, context);
-  
-  // Apply category filter if provided
-  if (categorySlug) {
-    filteredListings = filteredListings.filter(listing => 
-      listing.categories.some(category => category.slug === categorySlug)
-    );
+): Promise<{ listings: any[], totalPages: number, totalItems: number }> {
+  try {
+    const baseUrl = getBaseUrl()
+    
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: itemsPerPage.toString(),
+      context: context === ListingContext.ALL ? 'all' : context,
+      ...(categorySlug && { category: categorySlug }),
+      ...(filters.subCategory && { subCategory: filters.subCategory }),
+      ...(filters.city && { city: filters.city }),
+      ...(filters.search && { search: filters.search }),
+      ...(filters.featured && { featured: 'true' }),
+    })
+
+    const res = await fetch(`${baseUrl}/api/listings/public?${params}`, {
+      next: { revalidate: 60 }
+    })
+
+    if (!res.ok) {
+      console.error('Failed to fetch listings from API')
+      return { listings: [], totalPages: 0, totalItems: 0 }
+    }
+
+    const data = await res.json()
+    
+    return {
+      listings: data.listings || [],
+      totalPages: data.pagination?.totalPages || 0,
+      totalItems: data.pagination?.totalCount || 0
+    }
+  } catch (error) {
+    console.error('Error fetching listings:', error)
+    return { listings: [], totalPages: 0, totalItems: 0 }
   }
-  
-  // Apply other filters
-  filteredListings = applyFilters(filteredListings, filters);
-  
-  const totalItems = filteredListings.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startIndex = (page - 1) * itemsPerPage;
-  const paginatedListings = filteredListings.slice(startIndex, startIndex + itemsPerPage);
-  
-  return { 
-    listings: paginatedListings, 
-    totalPages, 
-    totalItems 
-  };
 }
 
+// src/app/lib/data.ts
+
+// 🔥 FIX: Update to use new API path
 export async function getListingBySlug(
   categorySlug: string,
   listingSlug: string,
   context: ListingContext = ListingContext.LOCAL
-): Promise<ListData | null> {
-  const contextFilteredData = filterByLocation(listData, context);
-  
-  const listing = contextFilteredData.find(listing => 
-    listing.slug === listingSlug && 
-    listing.categories.some(category => category.slug === categorySlug)
-  );
-  
-  return listing || null;
+): Promise<any | null> {
+  try {
+    const baseUrl = getBaseUrl()
+    
+    // 🔥 NEW PATH: /api/listings/by-slug/[cat]/[slug]
+    const res = await fetch(
+      `${baseUrl}/api/listings/by-slug/${categorySlug}/${listingSlug}`,
+      { next: { revalidate: 300 } }
+    )
+
+    if (!res.ok) return null
+
+    const data = await res.json()
+    return data.listing || data || null
+  } catch (error) {
+    console.error('Error fetching listing:', error)
+    return null
+  }
 }
 
+// 🔥 FIX: Get related listings (same as before, this one is fine)
 export async function getRelatedListings(
   categorySlug: string,
   currentListingSlug: string,
   limit: number = 3,
   context: ListingContext = ListingContext.LOCAL
-): Promise<ListData[]> {
-  const contextFilteredData = filterByLocation(listData, context);
-  
-  const relatedListings = contextFilteredData.filter(listing => 
-    listing.slug !== currentListingSlug &&
-    listing.categories.some(category => category.slug === categorySlug)
-  );
-  
-  return relatedListings.slice(0, limit);
+): Promise<any[]> {
+  try {
+    const baseUrl = getBaseUrl()
+    const contextParam = context === ListingContext.GLOBAL ? 'global' : 'local'
+    
+    const params = new URLSearchParams({
+      context: contextParam,
+      category: categorySlug,
+      limit: '10',
+    })
+    
+    const res = await fetch(`${baseUrl}/api/listings/public?${params}`, {
+      next: { revalidate: 300 }
+    })
+
+    if (!res.ok) return []
+
+    const data = await res.json()
+    
+    const relatedListings = (data.listings || [])
+      .filter((listing: any) => listing.slug !== currentListingSlug)
+      .slice(0, limit)
+    
+    return relatedListings
+  } catch (error) {
+    console.error('Error fetching related listings:', error)
+    return []
+  }
 }
 
-export async function getCategoryDetails(slug: string, context: ListingContext = ListingContext.LOCAL): Promise<CategoryDetails> {
-  const contextFilteredData = filterByLocation(listData, context);
-  const categoryFromData = contextFilteredData
-    .flatMap(listing => listing.categories)
-    .find(category => category.slug === slug);
-  
-  if (categoryFromData) {
+// 🔥 Get category details from database
+export async function getCategoryDetails(
+  slug: string,
+  context: ListingContext = ListingContext.LOCAL
+): Promise<CategoryDetails> {
+  try {
+    const baseUrl = getBaseUrl()
+    const contextParam = context === ListingContext.GLOBAL ? 'global' : 'local'
+    
+    const res = await fetch(
+      `${baseUrl}/api/categories?context=${contextParam}`,
+      { next: { revalidate: 300 } }
+    )
+
+    if (!res.ok) {
+      return {
+        name: slug,
+        description: `Find trusted businesses in ${slug}`
+      }
+    }
+
+    const data = await res.json()
+    const category = data.categories?.find((c: any) => c.slug === slug)
+
+    if (category) {
+      return {
+        name: category.name,
+        description: `Find your perfect partner from our curated list of trusted companies in ${category.name}.`
+      }
+    }
+
     return {
-      name: categoryFromData.name,
-      description: `Find your perfect partner from our curated list of trusted companies in ${categoryFromData.name}.`
-    };
+      name: slug,
+      description: `Find trusted businesses in ${slug}`
+    }
+  } catch (error) {
+    console.error('Error fetching category details:', error)
+    return {
+      name: slug,
+      description: `Find trusted businesses in ${slug}`
+    }
   }
-  
-  // Fallback to hardcoded map if not found in data
-  const categoryMap: { [key: string]: string } = {
-    'real-estate': 'Real Estate',
-    'manufacturing': 'Manufacturing',
-    'shops-and-suppliers': 'Shops & Suppliers',
-    'services': 'Services',
-    'technology': 'Technology'
-  };
-  
-  const name = categoryMap[slug] || 'Listings';
-  const description = `Find your perfect partner from our curated list of trusted companies in ${name}.`;
-  
-  return { name, description };
 }
 
-export async function getSubCategories(categorySlug?: string, context: ListingContext = ListingContext.LOCAL): Promise<string[]> {
-  let contextFilteredData = filterByLocation(listData, context);
-  
-  if (categorySlug) {
-    contextFilteredData = contextFilteredData.filter(listing =>
-      listing.categories.some(category => category.slug === categorySlug)
-    );
+// 🔥 Get subcategories from database
+export async function getSubCategories(
+  categorySlug?: string,
+  context: ListingContext = ListingContext.LOCAL
+): Promise<string[]> {
+  try {
+    const baseUrl = getBaseUrl()
+    
+    // Get all listings for this category to extract subcategories
+    const params = new URLSearchParams({
+      context: context === ListingContext.GLOBAL ? 'global' : 'local',
+      limit: '100',
+      ...(categorySlug && { category: categorySlug })
+    })
+
+    const res = await fetch(`${baseUrl}/api/listings/public?${params}`, {
+      next: { revalidate: 300 }
+    })
+
+    if (!res.ok) return []
+
+    const data = await res.json()
+    // ✅ FIX: Cast the resulting array to string[]
+    const subCategories = [...new Set(
+      data.listings?.map((l: any) => l.subCategory).filter(Boolean) || []
+    )] as string[]
+
+    return subCategories.sort()
+  } catch (error) {
+    console.error('Error fetching subcategories:', error)
+    return []
   }
-  
-  const subCategories = [...new Set(contextFilteredData.map(listing => listing.subCategory))];
-  return subCategories.sort();
 }
 
-export async function getCities(categorySlug?: string, context: ListingContext = ListingContext.LOCAL): Promise<string[]> {
-  let contextFilteredData = filterByLocation(listData, context);
-  
-  if (categorySlug) {
-    contextFilteredData = contextFilteredData.filter(listing =>
-      listing.categories.some(category => category.slug === categorySlug)
-    );
+// 🔥 Get cities from database
+export async function getCities(
+  categorySlug?: string,
+  context: ListingContext = ListingContext.LOCAL
+): Promise<string[]> {
+  try {
+    const baseUrl = getBaseUrl()
+    const contextParam = context === ListingContext.GLOBAL ? 'global' : 'local'
+    
+    if (categorySlug) {
+      // Get cities for specific category
+      const params = new URLSearchParams({
+        context: contextParam,
+        category: categorySlug,
+        limit: '100'
+      })
+
+      const res = await fetch(`${baseUrl}/api/listings/public?${params}`, {
+        next: { revalidate: 300 }
+      })
+
+      if (!res.ok) return []
+
+      const data = await res.json()
+      // ✅ FIX: Cast the resulting array to string[]
+      const cities = [...new Set(
+        data.listings?.map((l: any) => l.city).filter(Boolean) || []
+      )] as string[]
+
+      return cities.sort()
+    } else {
+      // Get all cities
+      const res = await fetch(`${baseUrl}/api/cities?context=${contextParam}`, {
+        next: { revalidate: 300 }
+      })
+
+      if (!res.ok) return []
+
+      const data = await res.json()
+      // ✅ FIX: Cast the resulting array to string[] and add sort() for consistency
+      const cities = (data.cities?.map((c: any) => c.city) || []) as string[]
+      return cities.sort()
+    }
+  } catch (error) {
+    console.error('Error fetching cities:', error)
+    return []
   }
-  
-  const cities = [...new Set(contextFilteredData.map(listing => listing.city))];
-  return cities.sort();
 }
 
-// Backward compatibility functions
+// ============================================================================
+// BACKWARD COMPATIBILITY FUNCTIONS
+// ============================================================================
+
 export async function getAllListings(filters?: FilterParams, page?: number, itemsPerPage?: number) {
-  return getListings(ListingContext.LOCAL, filters, page, itemsPerPage);
+  return getListings(ListingContext.LOCAL, filters, page, itemsPerPage)
 }
 
 export async function getGlobalListings(filters?: FilterParams, page?: number, itemsPerPage?: number) {
-  return getListings(ListingContext.GLOBAL, filters, page, itemsPerPage);
+  return getListings(ListingContext.GLOBAL, filters, page, itemsPerPage)
 }
 
 export async function getListingsByCategory(categorySlug: string, filters?: FilterParams, page?: number, itemsPerPage?: number) {
-  return getListings(ListingContext.LOCAL, filters, page, itemsPerPage, categorySlug);
+  return getListings(ListingContext.LOCAL, filters, page, itemsPerPage, categorySlug)
 }
 
 export async function getGlobalListingsByCategory(categorySlug: string, filters?: FilterParams, page?: number, itemsPerPage?: number) {
-  return getListings(ListingContext.GLOBAL, filters, page, itemsPerPage, categorySlug);
+  return getListings(ListingContext.GLOBAL, filters, page, itemsPerPage, categorySlug)
 }
 
 export async function getAllSubCategories() {
-  return getSubCategories(undefined, ListingContext.LOCAL);
+  return getSubCategories(undefined, ListingContext.LOCAL)
 }
 
 export async function getAllCities() {
-  return getCities(undefined, ListingContext.LOCAL);
+  return getCities(undefined, ListingContext.LOCAL)
 }
 
 export async function getSubCategoriesByCategory(categorySlug: string) {
-  return getSubCategories(categorySlug, ListingContext.LOCAL);
+  return getSubCategories(categorySlug, ListingContext.LOCAL)
 }
 
 export async function getCitiesByCategory(categorySlug: string) {
-  return getCities(categorySlug, ListingContext.LOCAL);
+  return getCities(categorySlug, ListingContext.LOCAL)
 }
 
 export async function getGlobalSubCategories() {
-  return getSubCategories(undefined, ListingContext.GLOBAL);
+  return getSubCategories(undefined, ListingContext.GLOBAL)
 }
 
 export async function getGlobalCitiesByCategory(categorySlug: string) {
-  return getCities(categorySlug, ListingContext.GLOBAL);
+  return getCities(categorySlug, ListingContext.GLOBAL)
 }
 
+// ============================================================================
+// SEARCH FUNCTIONS
+// ============================================================================
+
 export interface SearchFilters extends FilterParams {
-  query?: string;
-  location?: string;
-  category?: string;
+  query?: string
+  location?: string
+  category?: string
 }
 
 export async function searchListings(
@@ -263,94 +329,97 @@ export async function searchListings(
   page: number = 1,
   itemsPerPage: number = 9,
   context: ListingContext = ListingContext.LOCAL
-): Promise<{ listings: ListData[], totalPages: number, totalItems: number }> {
-  
-  let filteredListings = filterByLocation(listData, context);
-  
-  // Apply category filter
-  if (filters.category && filters.category !== 'all') {
-    filteredListings = filteredListings.filter(listing => 
-      listing.categories.some(category => category.slug === filters.category)
-    );
+): Promise<{ listings: any[], totalPages: number, totalItems: number }> {
+  try {
+    const baseUrl = getBaseUrl()
+    
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: itemsPerPage.toString(),
+      context: context === ListingContext.ALL ? 'all' : context,
+      ...(filters.category && filters.category !== 'all' && { category: filters.category }),
+      ...(filters.location && filters.location !== 'all-kenya' && { city: filters.location }),
+      ...(filters.query && { search: filters.query }),
+      ...(filters.subCategory && { subCategory: filters.subCategory }),
+      ...(filters.city && { city: filters.city }),
+      ...(filters.featured && { featured: 'true' }),
+    })
+
+    const res = await fetch(`${baseUrl}/api/listings/public?${params}`, {
+      next: { revalidate: 60 }
+    })
+
+    if (!res.ok) {
+      return { listings: [], totalPages: 0, totalItems: 0 }
+    }
+
+    const data = await res.json()
+    
+    return {
+      listings: data.listings || [],
+      totalPages: data.pagination?.totalPages || 0,
+      totalItems: data.pagination?.totalCount || 0
+    }
+  } catch (error) {
+    console.error('Error searching listings:', error)
+    return { listings: [], totalPages: 0, totalItems: 0 }
   }
-  
-  // Apply location filter
-  if (filters.location && filters.location !== 'all-kenya') {
-    filteredListings = filteredListings.filter(listing => 
-      listing.city.toLowerCase().includes(filters.location!.toLowerCase()) ||
-      listing.location.toLowerCase().includes(filters.location!.toLowerCase())
-    );
-  }
-  
-  // Apply search query filter
-  if (filters.query && filters.query.trim()) {
-    const query = filters.query.toLowerCase().trim();
-    filteredListings = filteredListings.filter(listing => 
-      listing.title.toLowerCase().includes(query) ||
-      listing.desc.toLowerCase().includes(query) ||
-      listing.subCategory.toLowerCase().includes(query) ||
-      listing.categories.some(cat => cat.name.toLowerCase().includes(query)) ||
-      listing.tags?.some(tag => tag.toLowerCase().includes(query)) ||
-      listing.city.toLowerCase().includes(query) ||
-      listing.location.toLowerCase().includes(query)
-    );
-  }
-  
-  // Apply other existing filters
-  filteredListings = applyFilters(filteredListings, filters);
-  
-  const totalItems = filteredListings.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startIndex = (page - 1) * itemsPerPage;
-  const paginatedListings = filteredListings.slice(startIndex, startIndex + itemsPerPage);
-  
-  return {
-    listings: paginatedListings,
-    totalPages,
-    totalItems
-  };
 }
 
-// Get dynamic categories for search dropdown
+// 🔥 Get categories for search dropdown
 export async function getSearchCategories(): Promise<Array<{value: string, label: string}>> {
-  const kenyanListings = filterByLocation(listData, ListingContext.LOCAL);
-  const categoriesMap = new Map();
-  
-  kenyanListings.forEach(listing => {
-    listing.categories.forEach(category => {
-      if (!categoriesMap.has(category.slug)) {
-        categoriesMap.set(category.slug, category.name);
-      }
-    });
-  });
-  
-  const categories = [
-    { value: 'all', label: 'All Categories' },
-    ...Array.from(categoriesMap.entries()).map(([slug, name]) => ({
-      value: slug,
-      label: name
-    }))
-  ];
-  
-  return categories.sort((a, b) => a.label.localeCompare(b.label));
+  try {
+    const baseUrl = getBaseUrl()
+    const res = await fetch(`${baseUrl}/api/categories?context=local`, {
+      next: { revalidate: 300 }
+    })
+
+    if (!res.ok) {
+      return [{ value: 'all', label: 'All Categories' }]
+    }
+
+    const data = await res.json()
+    
+    const categories = [
+      { value: 'all', label: 'All Categories' },
+      ...(data.categories?.map((cat: any) => ({
+        value: cat.slug,
+        label: cat.name
+      })) || [])
+    ]
+
+    return categories.sort((a, b) => a.label.localeCompare(b.label))
+  } catch (error) {
+    console.error('Error fetching search categories:', error)
+    return [{ value: 'all', label: 'All Categories' }]
+  }
 }
 
-// Get dynamic locations for search dropdown
+// 🔥 Get locations for search dropdown
 export async function getSearchLocations(): Promise<Array<{value: string, label: string}>> {
-  const kenyanListings = filterByLocation(listData, ListingContext.LOCAL);
-  const citiesSet = new Set<string>();
-  
-  kenyanListings.forEach(listing => {
-    citiesSet.add(listing.city);
-  });
-  
-  const locations = [
-    { value: 'all-kenya', label: 'All Kenya' },
-    ...Array.from(citiesSet).map(city => ({
-      value: city.toLowerCase(),
-      label: city
-    }))
-  ];
-  
-  return locations.sort((a, b) => a.label.localeCompare(b.label));
+  try {
+    const baseUrl = getBaseUrl()
+    const res = await fetch(`${baseUrl}/api/cities?context=local`, {
+      next: { revalidate: 300 }
+    })
+
+    if (!res.ok) {
+      return [{ value: 'all-kenya', label: 'All Kenya' }]
+    }
+
+    const data = await res.json()
+    
+    const locations = [
+      { value: 'all-kenya', label: 'All Kenya' },
+      ...(data.cities?.map((city: any) => ({
+        value: city.city.toLowerCase(),
+        label: city.city
+      })) || [])
+    ]
+
+    return locations.sort((a, b) => a.label.localeCompare(b.label))
+  } catch (error) {
+    console.error('Error fetching search locations:', error)
+    return [{ value: 'all-kenya', label: 'All Kenya' }]
+  }
 }

@@ -51,7 +51,7 @@ export default async function SingleListingPage({ params }: PageProps) {
     notFound();
   }
 
-  const primaryCategory = listing.categories.find((cat) => cat.isPrimary);
+  const primaryCategory = listing.categories.find((cat: any) => cat.isPrimary);
   const displayCategory = primaryCategory || listing.categories[0];
 
   const breadcrumbItems = [
@@ -80,6 +80,17 @@ export default async function SingleListingPage({ params }: PageProps) {
                 <div className="d-flex align-items-end justify-content-between flex-wrap gap-3">
                   <div className="firstColumn">
                     <div className="listingFirstinfo d-flex align-items-center justify-content-start gap-3 flex-wrap">
+                      <div className="listingAvatar">
+                        <Link href="#" className="d-block">
+                          <Image
+                            src={listing.logo}
+                            width={95}
+                            height={95}
+                            className="img-fluid rounded-3"
+                            alt="Avatar"
+                          />
+                        </Link>
+                      </div>
                       <div className="listingCaptioninfo">
                         <div className="propertyTitlename d-flex align-items-center gap-2 mb-1">
                           <h2 className="fw-semibold text-light mb-0">{listing.title}</h2>

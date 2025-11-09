@@ -2,14 +2,8 @@
 import { Metadata } from 'next';
 import metaData from '../seo/meta.json';
 import { seoConfig } from '../seo/config';
-import { 
-  getCategoryDetails, 
-  getListingsByCategory, 
-  ListingContext, 
-  getListings, 
-  getListingBySlug 
-} from '@/app/lib/data';
-
+// src/lib/useSeo.ts
+import { ListingContext } from '@/app/lib/data'; 
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
@@ -26,7 +20,6 @@ interface MetaDataItem {
   twitterImage?: string;
   author?: string;
   robots?: string;
-  // AI Agent Optimization
   aiAgent?: {
     intent?: string;
     entities?: string[];
@@ -51,7 +44,6 @@ interface CustomSEOData extends Partial<MetaDataItem> {
   businessCategory?: string;
   businessImages?: string[];
   jsonLd?: any | any[];
-  // AI Agent specific data
   aiAgent?: {
     intent?: string;
     entities?: string[];
@@ -84,13 +76,165 @@ interface WorkingHours {
   hours: string;
 }
 
+// enum ListingContext {
+//   LOCAL = 'local',
+//   GLOBAL = 'global'
+// }
+
 // ============================================================================
-// UTILITY FUNCTIONS
+// API HELPERS
 // ============================================================================
 
+const getBaseUrl = () => {
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+  return process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+};
+
 /**
- * Converts relative URLs to absolute URLs
+ * Fetch category details from API
  */
+async function getCategoryDetailsFromAPI(
+  categorySlug: string, 
+  context: ListingContext = ListingContext.LOCAL
+): Promise<{ name: string; description: string }> {
+  try {
+    const baseUrl = getBaseUrl();
+    const res = await fetch(`${baseUrl}/api/categories?context=${context}`, {
+      next: { revalidate: 3600 }
+    });
+    
+    if (!res.ok) throw new Error('Failed to fetch categories');
+    
+    const data = await res.json();
+    const category = data.categories?.find((c: any) => c.slug === categorySlug);
+    
+    if (!category) {
+      return { 
+        name: categorySlug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), 
+        description: `Browse ${categorySlug.replace(/-/g, ' ')} businesses in Kenya.` 
+      };
+    }
+    
+    return {
+      name: category.name,
+      description: category.description || `Browse ${category.name} businesses in Kenya.`
+    };
+  } catch (error) {
+    console.error('Error fetching category details:', error);
+    return { 
+      name: categorySlug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), 
+      description: `Browse ${categorySlug.replace(/-/g, ' ')} businesses in Kenya.` 
+    };
+  }
+}
+
+/**
+ * Fetch listings by category from API
+ */
+/**
+ * Fetch listings by category from API
+ */
+async function getListingsByCategoryFromAPI(
+  categorySlug: string,
+  context: ListingContext = ListingContext.LOCAL
+): Promise<{ totalItems: number }> {
+  try {
+    const baseUrl = getBaseUrl();
+    const res = await fetch(
+      `${baseUrl}/api/listings/public?context=${context}&category=${categorySlug}&limit=1`,
+      { next: { revalidate: 3600 } } // 🔥 Fixed - removed extra comma
+    );
+    
+    if (!res.ok) return { totalItems: 0 };
+    
+    const data = await res.json();
+    return { totalItems: data.pagination?.totalCount || 0 };
+  } catch (error) {
+    console.error('Error fetching listings count:', error);
+    return { totalItems: 0 };
+  }
+}
+
+/**
+ * Fetch top listings from API
+ */
+async function getListingsFromAPI(
+  context: ListingContext = ListingContext.LOCAL,
+  filters: any = {},
+  page: number = 1,
+  limit: number = 12,
+  categorySlug?: string
+): Promise<{ listings: any[] }> {
+  try {
+    const baseUrl = getBaseUrl();
+    const params = new URLSearchParams({
+      context,
+      page: page.toString(),
+      limit: limit.toString(),
+      ...(categorySlug && { category: categorySlug })
+    });
+    
+    const res = await fetch(
+      `${baseUrl}/api/listings/public?${params}`,
+      { next: { revalidate: 3600 } }
+    );
+    
+    if (!res.ok) return { listings: [] };
+    
+    const data = await res.json();
+    return { listings: data.listings || [] };
+  } catch (error) {
+    console.error('Error fetching listings:', error);
+    return { listings: [] };
+  }
+}
+
+/**
+ * Fetch single listing by slug from API
+ */
+// lib/useSeo.ts
+
+/**
+ * Fetch single listing by slug from API
+ */
+async function getListingBySlugFromAPI(
+  categorySlug: string,
+  listingSlug: string,
+  context: ListingContext = ListingContext.LOCAL
+): Promise<any | null> {
+  try {
+    const baseUrl = getBaseUrl();
+    
+    // 🔥 FIX: Use correct API path
+    const res = await fetch(
+      `${baseUrl}/api/listings/by-slug/${categorySlug}/${listingSlug}`,
+      { 
+        next: { revalidate: 300 },
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    );
+    
+    if (!res.ok) {
+      console.error(`Failed to fetch listing: ${res.status} ${res.statusText}`);
+      return null;
+    }
+    
+    const data = await res.json();
+    return data.listing || null;
+  } catch (error) {
+    console.error('Error fetching listing:', error);
+    return null;
+  }
+}
+
+// ============================================================================
+// UTILITY FUNCTIONS (Keep all your existing utility functions)
+// ============================================================================
+
 export function toAbsoluteUrl(url?: string): string | undefined {
   if (!url) return undefined;
   if (url.startsWith('http://') || url.startsWith('https://')) return url;
@@ -98,14 +242,10 @@ export function toAbsoluteUrl(url?: string): string | undefined {
   return `${seoConfig.siteUrl}/${url.replace(/^\/*/, '')}`;
 }
 
-/**
- * Extracts geographic coordinates from Google Maps URLs
- */
 function extractGeoFromMapUrl(url?: string): { latitude: number; longitude: number } | undefined {
   if (!url) return undefined;
   
   try {
-    // Pattern: ll=lat,long
     const llMatch = url.match(/[?&]ll=(-?\d+\.\d+),(-?\d+\.\d+)/);
     if (llMatch) {
       return { 
@@ -114,7 +254,6 @@ function extractGeoFromMapUrl(url?: string): { latitude: number; longitude: numb
       };
     }
     
-    // Pattern: !3dLAT!2dLON
     const latMatch = url.match(/!3d(-?\d+\.\d+)/);
     const lonMatch = url.match(/!2d(-?\d+\.\d+)/);
     if (latMatch && lonMatch) {
@@ -124,7 +263,6 @@ function extractGeoFromMapUrl(url?: string): { latitude: number; longitude: numb
       };
     }
     
-    // Pattern: q=lat,long
     const qMatch = url.match(/[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)/);
     if (qMatch) {
       return { 
@@ -139,9 +277,6 @@ function extractGeoFromMapUrl(url?: string): { latitude: number; longitude: numb
   return undefined;
 }
 
-/**
- * Determines the most specific Schema.org business type based on category
- */
 function getBusinessType(category?: string): string {
   if (!category) return 'LocalBusiness';
   
@@ -170,9 +305,6 @@ function getBusinessType(category?: string): string {
   return typeMap[normalized] || 'LocalBusiness';
 }
 
-/**
- * Generates more compelling and SEO-optimized titles
- */
 function generateOptimizedTitle(
   businessName: string,
   category: string,
@@ -193,9 +325,6 @@ function generateOptimizedTitle(
   }
 }
 
-/**
- * Generates compelling meta descriptions with benefits
- */
 function generateMetaDescription(
   businessName: string,
   description: string,
@@ -209,9 +338,6 @@ function generateMetaDescription(
   return `${cleanDesc} in ${location}. Find${categoryText} ${benefits.join(', ')} and more. Connect with ${businessName} today!`;
 }
 
-/**
- * Generates AI agent optimized content for better discoverability
- */
 function generateAIAgentData(
   businessName: string,
   category: string,
@@ -301,12 +427,9 @@ function generateAIAgentData(
 }
 
 // ============================================================================
-// SCHEMA BUILDERS
+// SCHEMA BUILDERS (Keep all your existing schema builders)
 // ============================================================================
 
-/**
- * Builds a comprehensive Organization/LocalBusiness schema
- */
 function buildOrganizationSchema(
   listing: any,
   url: string,
@@ -317,7 +440,6 @@ function buildOrganizationSchema(
       ? listing.locations[0] 
       : undefined;
 
-  // Build address
   const address = (primaryLocation?.address || listing.location || listing.city) ? {
     '@type': 'PostalAddress',
     ...(primaryLocation?.address && { streetAddress: primaryLocation.address }),
@@ -326,10 +448,8 @@ function buildOrganizationSchema(
     addressCountry: 'KE'
   } : undefined;
 
-  // Build telephone
   const telephone = primaryLocation?.phone || listing.call || undefined;
 
-  // Build sameAs array (social links + website)
   const sameAs: string[] = [];
   if (listing.website) sameAs.push(listing.website);
   
@@ -346,7 +466,6 @@ function buildOrganizationSchema(
     if (link) sameAs.push(link);
   });
 
-  // Build opening hours specification
   const openingHoursSpecification = 
     Array.isArray(listing.workingHours) && listing.workingHours.length > 0
       ? listing.workingHours.map((h: WorkingHours) => ({
@@ -357,14 +476,11 @@ function buildOrganizationSchema(
         }))
       : undefined;
 
-  // Determine organization type
   const orgType = getBusinessType(listing.categories?.[0]?.name || listing.subCategory);
   const isLocalBusiness = context === ListingContext.LOCAL;
 
-  // Build geo coordinates
   const geoCoords = extractGeoFromMapUrl(primaryLocation?.mapEmbedUrl);
 
-  // Build contact point
   const contactPoint = (telephone || primaryLocation?.email) ? {
     '@type': 'ContactPoint',
     contactType: primaryLocation?.contactPerson ? 'sales' : 'customer support',
@@ -374,7 +490,6 @@ function buildOrganizationSchema(
     availableLanguage: ['en', 'sw']
   } : undefined;
 
-  // Build offer catalog from content blocks
   const hasOfferCatalog = 
     Array.isArray(listing.contentBlocks) && listing.contentBlocks.length > 0 
       ? {
@@ -391,7 +506,6 @@ function buildOrganizationSchema(
         }
       : undefined;
 
-  // Build keywords/knowsAbout
   const knowsAbout = 
     Array.isArray(listing.tags) && listing.tags.length > 0 
       ? listing.tags 
@@ -433,9 +547,6 @@ function buildOrganizationSchema(
   };
 }
 
-/**
- * Builds a ListItem schema for ItemList
- */
 function buildListItemSchema(
   listing: any,
   index: number,
@@ -451,9 +562,6 @@ function buildListItemSchema(
   };
 }
 
-/**
- * Builds BreadcrumbList schema
- */
 function buildBreadcrumbSchema(breadcrumbs: Array<{ name: string; url: string }>): object {
   return {
     '@context': 'https://schema.org',
@@ -467,9 +575,6 @@ function buildBreadcrumbSchema(breadcrumbs: Array<{ name: string; url: string }>
   };
 }
 
-/**
- * Builds FAQ schema for listings
- */
 function buildFAQSchema(listing: any): object | null {
   if (!listing.title || !listing.desc) return null;
 
@@ -516,9 +621,6 @@ function buildFAQSchema(listing: any): object | null {
   };
 }
 
-/**
- * Builds AI agent optimized schema for better discoverability
- */
 function buildAIAgentSchema(
   businessName: string,
   category: string,
@@ -550,7 +652,6 @@ function buildAIAgentSchema(
         knowsAbout: aiData.topics,
         sameAs: aiData.entities
       },
-      // AI Agent specific properties
       potentialAction: {
         '@type': 'SearchAction',
         target: {
@@ -576,7 +677,6 @@ function buildAIAgentSchema(
         }
       }
     },
-    // Knowledge Graph optimization
     {
       '@context': 'https://schema.org',
       '@type': 'ItemList',
@@ -596,9 +696,6 @@ function buildAIAgentSchema(
   ];
 }
 
-/**
- * Builds HowTo schema for business processes
- */
 function buildHowToSchema(listing: any): object | null {
   if (!listing.title || !listing.contentBlocks) return null;
 
@@ -664,7 +761,6 @@ export async function generateSEOMetadata(
   const typedMetaData = metaData as MetaDataCollection;
   const pageMeta: MetaDataItem = typedMetaData[metaKey] || typedMetaData.home;
   
-  // Load schema dynamically
   let schema: SchemaData | null = null;
   if (schemaMap[pathname]) {
     try {
@@ -677,7 +773,6 @@ export async function generateSEOMetadata(
 
   const finalMeta: MetaDataItem = { ...pageMeta, ...customData };
   
-  // Handle keywords array conversion
   const keywords = finalMeta.keywords ? 
     (Array.isArray(finalMeta.keywords) 
       ? finalMeta.keywords 
@@ -741,7 +836,7 @@ export async function generateSEOMetadata(
 
     category: customData.businessCategory || 'Business Directory',
     
-      other: {
+    other: {
       ...(schema || customData.jsonLd ? {
         'script:ld+json': JSON.stringify(
           Array.isArray(customData.jsonLd)
@@ -749,14 +844,12 @@ export async function generateSEOMetadata(
             : (customData.jsonLd ? (schema ? [schema, customData.jsonLd] : customData.jsonLd) : schema)
         ),
       } : {}),
-      // AI Agent optimization meta tags
       ...(customData.aiAgent || finalMeta.aiAgent ? {
         'ai-agent-intent': (customData.aiAgent || finalMeta.aiAgent)?.intent || '',
         'ai-agent-entities': (customData.aiAgent || finalMeta.aiAgent)?.entities?.join(',') || '',
         'ai-agent-topics': (customData.aiAgent || finalMeta.aiAgent)?.topics?.join(',') || '',
         'ai-agent-conversational-hooks': (customData.aiAgent || finalMeta.aiAgent)?.conversationalHooks?.join('|') || '',
       } : {}),
-      // Additional AI-friendly meta tags
       'content-language': 'en-KE',
       'geo.region': 'KE',
       'geo.country': 'Kenya',
@@ -770,64 +863,11 @@ export async function generateSEOMetadata(
 }
 
 // ============================================================================
-// SPECIALIZED SEO GENERATION FUNCTIONS
+// SPECIALIZED SEO GENERATION FUNCTIONS (API-powered)
 // ============================================================================
 
 /**
- * Generate SEO for business listing pages
- */
-export async function generateBusinessSEOMetadata(
-  businessName: string,
-  businessDescription: string,
-  businessLocation: string,
-  businessCategory: string,
-  businessImages: string[] = [],
-  pathname: string = '/business'
-): Promise<Metadata> {
-  const siteName = seoConfig.siteName || 'Kenya Bizz Directory';
-  
-  const customData: CustomSEOData = {
-    title: generateOptimizedTitle(businessName, businessCategory, businessLocation, 'listing'),
-    description: generateMetaDescription(businessName, businessDescription, businessLocation, businessCategory),
-    keywords: `${businessName},${businessLocation},${businessCategory},Kenya business,business directory`,
-    canonical: `${seoConfig.siteUrl}${pathname}`,
-    businessName,
-    businessDescription,
-    businessLocation,
-    businessCategory,
-    businessImages,
-    ogTitle: `${businessName} in ${businessLocation}`,
-    ogDescription: businessDescription,
-    ogImage: businessImages[0] || seoConfig.defaultOgImage,
-  };
-
-  return generateSEOMetadata(pathname, customData);
-}
-
-/**
- * Generate SEO for category pages
- */
-export async function generateCategorySEOMetadata(
-  categoryName: string,
-  categoryDescription: string,
-  pathname: string
-): Promise<Metadata> {
-  const siteName = seoConfig.siteName || 'Kenya Bizz Directory';
-  
-  const customData: CustomSEOData = {
-    title: generateOptimizedTitle(categoryName, categoryName, 'Kenya', 'category'),
-    description: `${categoryDescription} Find verified ${categoryName.toLowerCase()} businesses across Kenya.`,
-    keywords: `${categoryName} Kenya,${categoryName} directory,Kenya ${categoryName.toLowerCase()}`,
-    canonical: `${seoConfig.siteUrl}${pathname}`,
-    ogTitle: `${categoryName} Businesses in Kenya`,
-    ogDescription: categoryDescription,
-  };
-
-  return generateSEOMetadata(pathname, customData);
-}
-
-/**
- * Generate SEO for category grid pages with data enrichment
+ * Generate SEO for category pages using API data
  */
 export async function generateCategoryPageSEOMetadata(
   categorySlug: string,
@@ -840,11 +880,12 @@ export async function generateCategoryPageSEOMetadata(
   const pathname = options.pathname ?? `/listings/${categorySlug}`;
   const siteName = seoConfig.siteName || 'Kenya Bizz Directory';
 
-  const { name, description } = await getCategoryDetails(categorySlug, context);
+  // Fetch from API instead of local data
+  const { name, description } = await getCategoryDetailsFromAPI(categorySlug, context);
 
   const [{ totalItems }, top] = await Promise.all([
-    getListingsByCategory(categorySlug),
-    getListings(ListingContext.LOCAL, {}, 1, 12, categorySlug)
+    getListingsByCategoryFromAPI(categorySlug,context),
+    getListingsFromAPI(context, {}, 1, 12, categorySlug)
   ]);
 
   const normalizedName = name;
@@ -932,7 +973,7 @@ export async function generateCategoryPageSEOMetadata(
 }
 
 /**
- * Generate SEO for individual listing pages
+ * Generate SEO for individual listing pages using API data
  */
 export async function generateListingPageSEOMetadata(
   categorySlug: string,
@@ -946,7 +987,8 @@ export async function generateListingPageSEOMetadata(
   const basePath = options.basePath ?? (context === ListingContext.GLOBAL ? '/global-listings' : '/listings');
   const siteName = seoConfig.siteName || 'Kenya Bizz Directory';
 
-  const listing = await getListingBySlug(categorySlug, listingSlug, context);
+  // Fetch from API instead of local data
+  const listing = await getListingBySlugFromAPI(categorySlug, listingSlug, context);
   
   if (!listing) {
     return generateSEOMetadata(`${basePath}/${categorySlug}/${listingSlug}`, {
@@ -1070,6 +1112,59 @@ export async function generateListingPageSEOMetadata(
 }
 
 /**
+ * Generate SEO for business listing pages
+ */
+export async function generateBusinessSEOMetadata(
+  businessName: string,
+  businessDescription: string,
+  businessLocation: string,
+  businessCategory: string,
+  businessImages: string[] = [],
+  pathname: string = '/business'
+): Promise<Metadata> {
+  const siteName = seoConfig.siteName || 'Kenya Bizz Directory';
+  
+  const customData: CustomSEOData = {
+    title: generateOptimizedTitle(businessName, businessCategory, businessLocation, 'listing'),
+    description: generateMetaDescription(businessName, businessDescription, businessLocation, businessCategory),
+    keywords: `${businessName},${businessLocation},${businessCategory},Kenya business,business directory`,
+    canonical: `${seoConfig.siteUrl}${pathname}`,
+    businessName,
+    businessDescription,
+    businessLocation,
+    businessCategory,
+    businessImages,
+    ogTitle: `${businessName} in ${businessLocation}`,
+    ogDescription: businessDescription,
+    ogImage: businessImages[0] || seoConfig.defaultOgImage,
+  };
+
+  return generateSEOMetadata(pathname, customData);
+}
+
+/**
+ * Generate SEO for category pages (simplified)
+ */
+export async function generateCategorySEOMetadata(
+  categoryName: string,
+  categoryDescription: string,
+  pathname: string
+): Promise<Metadata> {
+  const siteName = seoConfig.siteName || 'Kenya Bizz Directory';
+  
+  const customData: CustomSEOData = {
+    title: generateOptimizedTitle(categoryName, categoryName, 'Kenya', 'category'),
+    description: `${categoryDescription} Find verified ${categoryName.toLowerCase()} businesses across Kenya.`,
+    keywords: `${categoryName} Kenya,${categoryName} directory,Kenya ${categoryName.toLowerCase()}`,
+    canonical: `${seoConfig.siteUrl}${pathname}`,
+    ogTitle: `${categoryName} Businesses in Kenya`,
+    ogDescription: categoryDescription,
+  };
+
+  return generateSEOMetadata(pathname, customData);
+}
+
+/**
  * Generate SEO for location-based pages
  */
 export async function generateLocationSEOMetadata(
@@ -1095,4 +1190,5 @@ export async function generateLocationSEOMetadata(
 // EXPORTS
 // ============================================================================
 
+export { ListingContext };
 export type { MetaDataItem, CustomSEOData, SchemaData };

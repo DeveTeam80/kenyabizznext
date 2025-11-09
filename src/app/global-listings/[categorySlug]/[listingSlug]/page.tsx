@@ -38,7 +38,7 @@ export default async function GlobalSingleListingPage({
         notFound();
     }
 
-    const primaryCategory = listing.categories.find(cat => cat.isPrimary);
+    const primaryCategory = listing.categories.find((cat: any) => cat.isPrimary);
     const displayCategory = primaryCategory || listing.categories[0];
 
     const breadcrumbItems = [
@@ -70,7 +70,7 @@ export default async function GlobalSingleListingPage({
                                         <div className="listingFirstinfo d-flex align-items-center justify-content-start gap-3 flex-wrap">
                                             <div className="listingAvatar">
                                                 <Link href="#" className="d-block">
-                                                    <Image src='/img/logo-3.png' width={95} height={95} className="img-fluid rounded-3" alt="Avatar" />
+                                                    <Image src={listing.logo} width={95} height={95} className="img-fluid rounded-3" alt="Avatar" />
                                                 </Link>
                                             </div>
                                             <div className="listingCaptioninfo">

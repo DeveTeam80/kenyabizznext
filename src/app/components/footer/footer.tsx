@@ -21,7 +21,7 @@ export default function Footer() {
                             </div>
                             {/* Copyright Text Updated */}
                             <div className="footerText">
-                                <p>© {new Date().getFullYear()} Explore Kenya Bizz is proudly managed by <Link href="https://visionarybizz.com/" target="_blank" className="text-light">Visionary Services</Link></p>
+                                <p>Kenya Bizz is proudly managed by <Link href="https://visionarybizz.com/" target="_blank" className="text-light">Visionary Services</Link></p>
                             </div>
                             {/* Social Links Updated */}
                             <div className="footerSocialwrap">

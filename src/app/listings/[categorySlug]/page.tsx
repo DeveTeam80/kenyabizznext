@@ -1,3 +1,4 @@
+// src/app/listings/[categorySlug]/page.tsx
 import React from 'react';
 import { Metadata } from 'next';
 import { generateCategoryPageSEOMetadata } from '../../../../lib/useSeo';

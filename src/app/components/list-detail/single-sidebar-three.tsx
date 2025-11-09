@@ -30,8 +30,9 @@ interface ListData {
   slug: string;
   title: string;
   image: string;
+  logo: string;
   user: string;
-  statusText: 'Verified' | 'Unclaimed';
+  statusText: 'Verified' | 'Unclaimed' | 'Pending Approval';
   featured: boolean;
   isVerified: boolean;
   desc: string;

@@ -11,10 +11,7 @@ import ExploreCity from "./components/explore-city";
 import HowItsWork from "./components/how-its-work";
 import WorkingProcessTwo from "./components/working-process-two";
 import { ListingContext } from "./lib/data";
-
-export async function generateMetadata() {
-    return await generateSEOMetadata('/');
-}
+import { Metadata } from "next";
 
 export default function Home() {
     return (
@@ -124,4 +121,8 @@ export default function Home() {
             <BackToTop />
         </>
     );
+}
+// At the bottom - add/replace generateMetadata
+export async function generateMetadata(): Promise<Metadata> {
+  return generateSEOMetadata('/')
 }

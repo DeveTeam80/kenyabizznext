@@ -1,0 +1,101 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  password  String
+  name      String?
+  role      String    @default("user")
+  avatar    String    @default("/img/team-1.jpg")
+  
+  // 🔥 NEW: EMAIL VERIFICATION
+  emailVerified      Boolean   @default(false)
+  verificationToken  String?   @unique
+  verificationExpiry DateTime?
+  
+  // 🔥 NEW: PASSWORD RESET
+  resetToken         String?   @unique
+  resetTokenExpiry   DateTime?
+  
+  // 🔥 NEW: SECURITY
+  failedLoginAttempts Int      @default(0)
+  accountLockedUntil  DateTime?
+  lastLoginAt         DateTime?
+  lastLoginIp         String?
+  
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  listings  Listing[]
+}
+
+model Listing {
+  id                   Int      @id @default(autoincrement())
+  userId               Int
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Basic Info
+  slug                 String   @unique
+  title                String
+  desc                 String   @db.Text
+  logo                 String   @default("/img/logo/default-business-logo.png")
+  image                String
+  bannerImage          String
+  
+  // Status
+  approved             Boolean  @default(false)
+  isVerified           Boolean  @default(false)
+  featured             Boolean  @default(false)
+  statusText           String   @default("Unclaimed")
+  
+  // Location - 🆕 Enhanced location fields
+  city                 String
+  location             String
+  subCategory          String
+  isGlobal             Boolean  @default(false)  // 🆕 true if outside Kenya
+  locationConfirmation String?  // 🆕 'kenya' | 'other' | null
+  locationVerified     Boolean  @default(false)  // 🆕 Admin verified
+  locationDetection    String?  // 🆕 'auto' | 'user_confirmed' | 'admin_verified'
+  
+  // Contact
+  call                 String
+  email                String
+  website              String?
+  
+  // Rating
+  rating               String   @default("mid")
+  ratingRate           String   @default("0.0")
+  review               String   @default("(0 Reviews)")
+  
+  // Categories
+  categories           Json
+  
+  // Detailed Info
+  fullDescription      Json
+  locations            Json
+  contentSectionTitle  String?
+  contentBlocks        Json?
+  reviews              Json?
+  workingHours         Json?
+  tags                 Json?
+  socials              Json?
+  seo                  Json?
+  
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([approved])
+  @@index([city])
+  @@index([subCategory])
+  @@index([slug])
+  @@index([isGlobal])  // 🆕 For filtering local vs global
+  @@index([locationVerified])  // 🆕 For admin dashboard
+}

@@ -40,7 +40,7 @@ export const categoryData: CategoryData[] = [
         icon: FaBriefcaseMedical,
         title: 'Health & Services',
         list: '30+ Listings',
-        link: '#', 
+        link: '#',
     },
     {
         icon: GiWheat,
@@ -56,78 +56,83 @@ export const categoryData: CategoryData[] = [
     },
 ];
 
+// src/app/data/data.ts
+
 export interface ListData {
-    id: number;
-    slug: string;
-    title: string;
-    image: string;
-    user: string; 
-    statusText: 'Verified' | 'Unclaimed';
-    featured: boolean;
-    isVerified: boolean;
-    desc: string;
-    call: string;
-    location: string;
-    city: string;
-    subCategory: string;
+    id: number
+    slug: string
+    title: string
+
+    // 🆕 Updated image fields
+    logo: string          // Business logo (200x200px+)
+    image: string         // Main listing image (800x600px+)
+    bannerImage: string   // Banner image (1920x600px+)
+
+    user: string // avatar path
+    statusText: 'Verified' | 'Unclaimed' | 'Pending Approval'
+    featured: boolean
+    isVerified: boolean
+    desc: string
+    call: string
+    location: string
+    city: string
+    subCategory: string
     categories: {
-        slug: string;
-        name: string;
-        isPrimary: boolean;
-    }[];
-    rating: 'high' | 'mid' | 'low';
-    ratingRate: string;
-    review: string;
+        slug: string
+        name: string
+        isPrimary: boolean
+    }[]
+    rating: 'high' | 'mid' | 'low'
+    ratingRate: string
+    review: string
+
     // Detail fields
-    bannerImage: string;
-    fullDescription: string[];
-    website: string;
-    email: string;
+    fullDescription: string[]
+    website: string
+    email: string
     locations: {
-        branchName: string;
-        address: string;
-        contactPerson?: string;
-        phone: string;
-        email?: string;
-        mapEmbedUrl?: string;
-    }[];
-    contentSectionTitle?: string;
+        branchName: string
+        address: string
+        contactPerson?: string
+        phone: string
+        email?: string
+        mapEmbedUrl?: string
+    }[]
+    contentSectionTitle?: string
     contentBlocks?: {
-        title: string;
-        description: string;
-        image: string;
-    }[];
+        title: string
+        description: string
+        image: string // Additional images (800x600px+)
+    }[]
     reviews?: {
-        author: string;
-        rating: number;
-        comment: string;
-        date: string;
-    }[];
+        author: string
+        rating: number
+        comment: string
+        date: string
+    }[]
     workingHours?: {
-        day: string;
-        hours: string;
-    }[];
-    tags?: string[];
+        day: string
+        hours: string
+    }[]
+    tags?: string[]
     socials?: {
-        facebook?: string;
-        instagram?: string;
-        linkedin?: string;
-        twitter?: string;
-        youtube?: string;
-        whatsapp?: string;
-        tiktok?: string;
-    }; 
-    
-    
+        facebook?: string
+        instagram?: string
+        linkedin?: string
+        twitter?: string
+        youtube?: string
+        whatsapp?: string
+        tiktok?: string
+    }
     seo?: {
-        title?: string;
-        description?: string;
-        keywords?: string;
-        ogImage?: string;
-        twitterImage?: string;
-        robots?: string;
-        canonical?: string;
-    };
+        title?: string
+        description?: string
+        keywords?: string
+        ogImage?: string
+        twitterImage?: string
+        robots?: string
+        canonical?: string
+    }
 }
 
 export const listData: ListData[] = [
@@ -135,6 +140,7 @@ export const listData: ListData[] = [
         id: 1,
         slug: 'smb-properties',
         title: 'SMB Properties',
+        logo: '/img/logo-3.png',
         image: '/img/listings/smb-properties/smb-grid.png',
         city: 'Mombasa',
         location: '2nd Floor, Fairdeal Plaza, Nyali Road, Mombasa',
@@ -160,7 +166,7 @@ export const listData: ListData[] = [
         ],
         website: "https://smb.ke/",
         email: "sales@smbproperties.co.ke",
-        call: "+254 110 052 052", // Corrected: This field has been added
+        call: "+254 110 052 052",
         locations: [
             {
                 branchName: "Mombasa Office",
@@ -215,6 +221,7 @@ export const listData: ListData[] = [
         id: 2,
         slug: 'pearl-of-africa-natural-spices-ltd',
         title: 'Uganda Natural Spice',
+        logo: '/img/logo-3.png',
         image: '/img/listings/pearl-of-africa-natural-spices-ltd/unitedpearls-grid.jpg',
         city: 'Kampala',
         location: 'Plot 492 Bukasa Road, Muyenga, Kampala, Uganda',
@@ -287,6 +294,7 @@ export const listData: ListData[] = [
         id: 3,
         slug: 'fairdeal-properties',
         title: 'Fairdeal Properties',
+        logo: '/img/logo-3.png',
         image: '/img/listings/fairdeal-properties/fairdeal-grid.png',
         city: 'Nairobi',
         location: 'M4, Parkview Heights, Opp Nextgen Mall, Mombasa Road',
@@ -363,6 +371,7 @@ export const listData: ListData[] = [
         id: 4,
         slug: 'royal-group-kenya',
         title: 'Royal Group Kenya',
+        logo: '/img/logo-3.png',
         image: '/img/listings/royal-group-kenya/royalgroup-grid.jpg',
         city: 'Nairobi',
         location: 'Royal ICT Business Park, Mombasa Road, Nairobi, Kenya',
@@ -433,6 +442,7 @@ export const listData: ListData[] = [
         id: 5,
         slug: 'impala-glass',
         title: 'Impala Glass Industries',
+        logo: '/img/logo-3.png',
         image: '/img/listings/impala-glass/impalaglass-grid.jpg',
         city: 'Nairobi',
         location: 'Addis Ababa Road, Industrial Area Nairobi, Kenya',
@@ -509,6 +519,7 @@ export const listData: ListData[] = [
         id: 6,
         slug: 'multi-cable-ltd',
         title: 'Multi Cable Limited',
+        logo: '/img/logo-3.png',
         image: '/img/listings/multi-cable-ltd/multicable-grid.jpg',
         city: 'Dar Es Salaam',
         location: 'Dar Es Salaam, Tanzania',
@@ -578,6 +589,7 @@ export const listData: ListData[] = [
         id: 7,
         slug: 'hebatullah',
         title: 'Hebatullah Bros LTD',
+        logo: '/img/logo-3.png',
         image: '/img/listings/hebatullah-bros-ltd/hebatullah-grid.jpg',
         city: 'Nairobi',
         location: 'Airport North Rd, Embakasi Nairobi, Kenya',
@@ -651,6 +663,7 @@ export const listData: ListData[] = [
         id: 8,
         slug: 'saifee-chemicals',
         title: 'Saifee Chemicals',
+        logo: '/img/logo-3.png',
         image: '/img/listings/saifee-chemicals/saifee-chemicals-grid.jpg',
         city: 'Nairobi',
         location: '37 Funzi Road, Off Enterprise Road, Industrial Area, Nairobi, Kenya',
@@ -725,6 +738,7 @@ export const listData: ListData[] = [
         id: 9,
         slug: 'rawat-foods',
         title: 'Rawat Foods',
+        logo: '/img/logo-3.png',
         image: '/img/listings/rawat-foods/rawat-foods-grid.jpg',
         city: 'Kampala',
         location: 'Plot 653, Lugala - Mengo, Kampala, Uganda',
@@ -796,6 +810,7 @@ export const listData: ListData[] = [
         id: 10,
         slug: 'meps-fencing-system',
         title: 'MEPS Fencing Systems',
+        logo: '/img/logo-3.png',
         image: '/img/listings/meps-fencing-system/mepfence-grid.jpg',
         city: 'Nairobi',
         location: 'Funzi Road, Industrial Area, Nairobi, Kenya',
@@ -869,6 +884,7 @@ export const listData: ListData[] = [
         id: 11,
         slug: 'universal-m-enterprise',
         title: 'Universal Multipurpose Enterprises',
+        logo: '/img/logo-3.png',
         image: '/img/listings/universal-multipurpose-enterprise/universal-m-ent-grid.png',
         city: 'Kampala',
         location: 'Plot 32B Katalima Crescent, Ntinda 2 Road, Naguru Kampala Uganda',
@@ -946,6 +962,7 @@ export const listData: ListData[] = [
         id: 12,
         slug: 'fakhruddin-properties',
         title: 'Fakhruddin Properties',
+        logo: '/img/logo-3.png',
         image: '/img/listings/fakhruddin-properties/fakhruddin-grid.png',
         city: 'Dubai',
         location: 'HC Floor, Lake Central Tower Al Marasi Drive, Business Bay, Dubai, UAE',
@@ -1014,6 +1031,7 @@ export const listData: ListData[] = [
         id: 13,
         slug: 'ema-advisory',
         title: 'EMA Advisory',
+        logo: '/img/logo-3.png',
         image: '/img/listings/ema-advisory/ema-grid.jpg',
         city: 'Nairobi',
         location: 'Kings Prism Towers, Upperhill, Nairobi, Kenya',
@@ -1093,6 +1111,7 @@ export const listData: ListData[] = [
         id: 14,
         slug: 'alfazal-saifiyah-ltd',
         title: 'Al-Fazal Saifiyah Limited',
+        logo: '/img/logo-3.png',
         image: '/img/listings/al-fazal-saifiyah-ltd/alfazal-grid.jpg',
         city: 'Mombasa',
         location: 'EPIC BUSINESS PARK, LINKS RD - NYALI, MOMBASA',
@@ -1169,6 +1188,7 @@ export const listData: ListData[] = [
         id: 15,
         slug: 'african-quest-safaris',
         title: 'African Quest Safaris',
+        logo: '/img/logo-3.png',
         image: '/img/listings/african-quest-safaris/africaquest-grid.jpg',
         city: 'Mombasa',
         location: 'Petrocity Mall, Links Road Nyali, Mombasa, Kenya',
@@ -1255,6 +1275,7 @@ export const listData: ListData[] = [
         id: 16,
         slug: 'principal-forwarders-ltd',
         title: 'Principal Forwarders Ltd',
+        logo: '/img/logo-3.png',
         image: '/img/listings/principal-forwarders-ltd/principal-grid.jpg',
         city: 'Mombasa',
         location: 'Crisp Road, Ganjoni, Mombasa, Kenya',
@@ -1324,6 +1345,7 @@ export const listData: ListData[] = [
         id: 17,
         slug: 'zafs-tours',
         title: 'ZAFS Tours',
+        logo: '/img/logo-3.png',
         image: '/img/listings/zafs-tours/zafs-grid.jpg',
         city: 'Moshi',
         location: 'Moshi, Tanzania',
@@ -1394,6 +1416,7 @@ export const listData: ListData[] = [
         id: 18,
         slug: 'shabbiri-hardware',
         title: 'Shabbiri Hardware',
+        logo: '/img/logo-3.png',
         image: '/img/listings/shabbiri-hardware/shabbiri-grid.png',
         city: 'Nairobi',
         location: 'Magadi Road, Ongata Rongai, Nairobi',
@@ -1467,6 +1490,7 @@ export const listData: ListData[] = [
         id: 19,
         slug: 'brain-touch',
         title: 'Braintouch LLC',
+        logo: '/img/logo-3.png',
         image: '/img/listings/brain-touch-llp/brain-touch-grid.png',
         city: 'Nairobi',
         location: 'Off No 802, Chambers Heights, Chambers Road, Near Chandarma Supermarket, Ngara, Nairobi, Kenya',
@@ -1536,6 +1560,7 @@ export const listData: ListData[] = [
         id: 20,
         slug: 'hakimi-traders',
         title: 'Hakimi Traders L.L.C.',
+        logo: '/img/logo-3.png',
         image: '/img/listings/hakimi-traders/hakimi-traders-grid.jpg',
         city: 'Sharjah',
         location: 'Al Gharb Al Ghuwair - Sharjah, United Arab Emirates',
@@ -1609,6 +1634,7 @@ export const listData: ListData[] = [
         id: 21,
         slug: 'asp-solar-and-electronix',
         title: 'ASP Solar & Electronix',
+        logo: '/img/logo-3.png',
         image: '/img/listings/asp-solar-and-electronix/asp-grid.png',
         city: 'Dar Es Salaam',
         location: 'Kariakoo, Omari Londo Na Sikukuu Street, Block 20, Dar es Salaam, Tanzania',
@@ -1680,6 +1706,7 @@ export const listData: ListData[] = [
         id: 22,
         slug: 'nafees-creation',
         title: 'Nafees Creation',
+        logo: '/img/logo-3.png',
         image: '/img/listings/nafees-creation/nafees-creation-grid.jpg',
         city: 'Karachi',
         location: 'Shop#6, Qasre Burhani, near Shabbir Square, Shabbirabad Block B, Karachi, Pakistan',
@@ -1751,6 +1778,7 @@ export const listData: ListData[] = [
         id: 23,
         slug: 'mishkaat',
         title: 'MISHKAAT®',
+        logo: '/img/logo-3.png',
         image: '/img/listings/mishkaat/mishkaat-grid.png',
         city: 'Surat',
         location: 'Bazar Khadi Rd, Zampa Bazaar, Begampura, Surat, Gujarat',
@@ -1822,6 +1850,7 @@ export const listData: ListData[] = [
         id: 24,
         slug: 'beem',
         title: 'Beem Africa',
+        logo: '/img/logo-3.png',
         image: '/img/listings/beem-africa/beem-grid.jpg',
         city: 'Dar Es Salaam',
         location: 'Dar es Salaam, Tanzania',
@@ -1897,6 +1926,7 @@ export const listData: ListData[] = [
         id: 25,
         slug: 'aqiq-solutions',
         title: 'AQIQ Solutions Ltd',
+        logo: '/img/logo-3.png',
         image: '/img/listings/aqiq-solutions-ltd/aqiq-grid.jpg',
         city: 'Nairobi',
         location: 'OUR MALL, 3rd Floor, Magadi Rd, Nairobi',
@@ -1971,6 +2001,7 @@ export const listData: ListData[] = [
         id: 26,
         slug: 'unisaif-organic-cosmetics',
         title: 'Unisaif Organics',
+        logo: '/img/logo-3.png',
         image: '/img/listings/unisaif-organic-cosmetics/unisaif-grid.jpg',
         city: 'Bhopal',
         location: 'Bhopal, Madhya Pradesh, India',
@@ -2042,6 +2073,7 @@ export const listData: ListData[] = [
         id: 27,
         slug: 'fefco',
         title: 'Fefco',
+        logo: '/img/logo-3.png',
         image: '/img/listings/fefco/fefco-grid.jpg',
         city: 'Dubai',
         location: 'Qusais Industrial Area 5, Dubai, UAE',
@@ -2112,6 +2144,7 @@ export const listData: ListData[] = [
         id: 28,
         slug: 'modiyo',
         title: 'Modiyo',
+        logo: '/img/logo-3.png',
         image: '/img/listings/modiyo/modiyo-grid.jpg',
         city: 'Jalgaon',
         location: '379/9 jilha Peth, Behind GPO, India',
@@ -2184,6 +2217,7 @@ export const listData: ListData[] = [
         id: 29,
         slug: 'national-agencies',
         title: 'National Agencies',
+        logo: '/img/logo-3.png',
         image: '/img/listings/national-agencies/national-grid.jpg',
         city: 'Pune',
         location: 'Radha Nagari, #C9, Bhau Patil Road, Bopodi, Pune 411003',

@@ -1,3 +1,4 @@
+// src/app/global-listings/page.tsx
 import React from 'react';
 import { Metadata } from 'next';
 import { generateSEOMetadata } from '../../../lib/useSeo';
