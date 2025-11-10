@@ -5,12 +5,13 @@ import { requireAdmin } from '@/app/lib/auth'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await requireAdmin()
     const data = await request.json()
-    const listingId = parseInt(params.id)
+    const { id } = await params
+    const listingId = parseInt(id)
 
     // Extract verification data
     const { isGlobal, locationVerified = true } = data

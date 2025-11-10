@@ -5,12 +5,12 @@ import { requireAdmin, getSession } from '@/app/lib/auth'
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await requireAdmin()
-    const userId = parseInt(params.id)
-
+    const { id } = await params
+    const userId = parseInt(id)
     // Prevent admin from deleting themselves
     if (session.userId === userId) {
       return NextResponse.json(

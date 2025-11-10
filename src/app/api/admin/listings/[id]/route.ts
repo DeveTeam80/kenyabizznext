@@ -6,11 +6,12 @@ import { requireAdmin } from '@/app/lib/auth'
 // GET - Admin can fetch any listing
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await requireAdmin()
-    const listingId = parseInt(params.id)
+    const { id } = await params
+    const listingId = parseInt(id)
 
     const listing = await prisma.listing.findUnique({
       where: { id: listingId },
@@ -44,12 +45,13 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await requireAdmin()
+    const { id } = await params
     const data = await request.json()
-    const listingId = parseInt(params.id)
+    const listingId = parseInt(id)
 
     const listing = await prisma.listing.update({
       where: { id: listingId },
@@ -72,11 +74,12 @@ export async function PUT(
 // Admin can delete any listing
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await requireAdmin()
-    const listingId = parseInt(params.id)
+    const { id } = await params
+    const listingId = parseInt(id)
 
     await prisma.listing.delete({
       where: { id: listingId },

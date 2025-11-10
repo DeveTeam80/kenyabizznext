@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, Suspense } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -34,7 +34,8 @@ interface Listing {
     }
 }
 
-export default function AdminListingsPage() {
+// Separate the main content into its own component
+function AdminListingsContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const status = searchParams.get('status') || 'pending'
@@ -447,5 +448,32 @@ export default function AdminListingsPage() {
                 </div>
             </div>
         </>
+    )
+}
+
+// Loading component
+function AdminListingsLoading() {
+    return (
+        <>
+            <div className="dashHeader p-xl-5 p-4 pb-xl-0 pb-0 py-lg-0 py-5">
+                <h2 className="fw-medium mb-0">Manage Listings</h2>
+            </div>
+            <div className="dashCaption p-xl-5 p-3 p-md-4">
+                <div className="text-center py-5">
+                    <div className="spinner-border text-primary" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </>
+    )
+}
+
+// Main export wrapped with Suspense
+export default function AdminListingsPage() {
+    return (
+        <Suspense fallback={<AdminListingsLoading />}>
+            <AdminListingsContent />
+        </Suspense>
     )
 }

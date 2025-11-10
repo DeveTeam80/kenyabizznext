@@ -58,15 +58,15 @@ export default async function SitemapPage() {
     const groupedByCategory = groupListingsByCategory(allListings);
 
     const breadcrumbItems = [
-//   {
-//     label: 'Home',
-//     href: '/'
-//   },
-  {
-    label: 'Sitemap',
-    active: true
-  }
-];
+        //   {
+        //     label: 'Home',
+        //     href: '/'
+        //   },
+        {
+            label: 'Sitemap',
+            active: true
+        }
+    ];
 
     return (
         <div className='sitemap-page'>
@@ -199,8 +199,9 @@ export default async function SitemapPage() {
                             </div>
 
                             <div className="row g-3">
+                                // Around line 203
                                 {globalListings.listings.slice(0, 8).map((listing) => {
-                                    const primaryCategory = listing.categories.find(cat => cat.isPrimary);
+                                    const primaryCategory = listing.categories.find((cat: any) => cat.isPrimary);
                                     const displayCategory = primaryCategory || listing.categories[0];
 
                                     return (

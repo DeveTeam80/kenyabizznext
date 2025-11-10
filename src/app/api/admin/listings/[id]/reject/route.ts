@@ -5,12 +5,14 @@ import { requireAdmin } from '@/app/lib/auth'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await requireAdmin()
-    const listingId = parseInt(params.id)
-
+    
+    // Await params since it's now a Promise
+    const { id } = await params
+    const listingId = parseInt(id)
     await prisma.listing.delete({
       where: { id: listingId },
     })
