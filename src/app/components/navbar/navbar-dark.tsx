@@ -35,10 +35,10 @@ const NavbarDark: React.FC<NavbarDarkProps> = ({ categories = [] }) => {
   const router = useRouter()
 
   // 🔥 UPDATED: Add unique IDs to categories
-  const categoriesWithIds: NavItem[] = categories.map((cat, index) => ({
-    ...cat,
-    id: `category-${index}` // or use cat.slug if available
-  }))
+ const categoriesWithIds: NavItem[] = categories.map((cat, index) => ({
+  ...cat,
+  id: `category-${index}` // or use cat.slug if available
+}))
 
   // 🔥 UPDATED: Navigation data with unique IDs
   const navItems: NavItem[] = [

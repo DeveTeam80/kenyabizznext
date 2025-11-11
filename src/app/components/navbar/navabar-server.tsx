@@ -1,11 +1,14 @@
 import { ListingContext, getListings } from '@/app/lib/data';
 import NavbarDark from './navbar-dark';
 
-interface NavItem {
+export interface NavItem {
+  id: string
   href: string
   label: string
   submenu?: NavItem[]
 }
+
+// ... rest of your navbar-dark.tsx code
 
 // Add this interface for the category type
 interface Category {
@@ -20,7 +23,6 @@ async function getCategories(): Promise<NavItem[]> {
   const categoriesMap = new Map();
   
   listings.forEach(listing => {
-    // Add type annotation here
     listing.categories.forEach((category: Category) => {
       if (!categoriesMap.has(category.slug)) {
         categoriesMap.set(category.slug, {
