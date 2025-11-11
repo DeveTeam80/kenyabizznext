@@ -11,13 +11,14 @@ import { FiX } from 'react-icons/fi'
 
 // Types
 interface NavItem {
+  id: string // 🔥 ADD UNIQUE ID
   href: string
   label: string
   submenu?: NavItem[]
 }
 
 interface NavbarDarkProps {
-  categories?: NavItem[]
+  categories?: Omit<NavItem, 'id'>[] // Categories don't need id initially
 }
 
 const MOBILE_BREAKPOINT = 991
@@ -33,19 +34,59 @@ const NavbarDark: React.FC<NavbarDarkProps> = ({ categories = [] }) => {
   const pathname = usePathname()
   const router = useRouter()
 
-  // Navigation data with dynamic categories
+  // 🔥 UPDATED: Add unique IDs to categories
+  const categoriesWithIds: NavItem[] = categories.map((cat, index) => ({
+    ...cat,
+    id: `category-${index}` // or use cat.slug if available
+  }))
+
+  // 🔥 UPDATED: Navigation data with unique IDs
   const navItems: NavItem[] = [
-    { href: "/about-us", label: "About" },
-    { href: "/#explore", label: "Explore Kenya" },
+    { 
+      id: 'about',
+      href: "/about-us", 
+      label: "About" 
+    },
+    { 
+      id: 'explore',
+      href: "/#explore", 
+      label: "Explore Kenya" 
+    },
     {
+      id: 'services', // 🔥 UNIQUE ID
       href: "#",
-      label: "Listing",
+      label: "Our Services",
       submenu: [
-        { href: "/listings", label: "All Listings" },
-        ...categories, // Spread the dynamic categories
+        { 
+          id: 'service-directory',
+          href: "/add-listing", 
+          label: "Online Directory" 
+        },
+        { 
+          id: 'service-marketing',
+          href: "/services/digital-marketing", 
+          label: "Digital Marketing Agency" 
+        },
       ]
     },
-    { href: "/global-listings", label: "Global Listings" }
+    {
+      id: 'listings', // 🔥 UNIQUE ID (different from 'services')
+      href: "#",
+      label: "Listings",
+      submenu: [
+        { 
+          id: 'all-listings',
+          href: "/listings", 
+          label: "All Listings" 
+        },
+        ...categoriesWithIds, // Spread categories with IDs
+      ]
+    },
+    { 
+      id: 'global',
+      href: "/global-listings", 
+      label: "Global Listings" 
+    }
   ]
 
   const popularSearches = [
@@ -112,9 +153,9 @@ const NavbarDark: React.FC<NavbarDarkProps> = ({ categories = [] }) => {
 
   const isMobile = windowWidth <= MOBILE_BREAKPOINT
 
-  // Render functions
+  // 🔥 UPDATED: Render functions with unique keys
   const renderNavItem = (item: NavItem) => (
-    <li key={item.href} className={isActiveRoute(item.href) ? 'active' : ''}>
+    <li key={item.id} className={isActiveRoute(item.href) ? 'active' : ''}>
       <Link href={item.href} onClick={item.submenu ? undefined : closeMobileMenu}>
         {item.label}
         {item.submenu && (
@@ -126,7 +167,7 @@ const NavbarDark: React.FC<NavbarDarkProps> = ({ categories = [] }) => {
       {item.submenu && (
         <ul className="nav-dropdown nav-submenu">
           {item.submenu.map(subItem => (
-            <li key={subItem.href}>
+            <li key={subItem.id}>
               <Link href={subItem.href} onClick={closeMobileMenu}>
                 {subItem.label}
               </Link>
@@ -140,6 +181,7 @@ const NavbarDark: React.FC<NavbarDarkProps> = ({ categories = [] }) => {
   if (!isClient) {
     return null
   }
+
 
   return (
     <>

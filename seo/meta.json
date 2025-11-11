@@ -19,6 +19,49 @@
     "author": "Kenya Bizz Directory",
     "robots": "index, follow"
   },
+  "digitalMarketing": {
+    "title": "Digital Marketing Services in Kenya | Kenya Bizz Agency",
+    "description": "Leading digital marketing agency in Kenya offering SEO, social media marketing, online advertising, and business directory listings. Grow your business across all 47 counties.",
+    "keywords": "digital marketing kenya, seo kenya, social media marketing kenya, online advertising kenya, kenya marketing agency, business directory kenya, digital agency nairobi, marketing agency mombasa",
+    "canonical": "https://kenyabizz.com/services/digital-marketing",
+    "ogTitle": "Kenya's Premier Digital Marketing Agency | Kenya Bizz",
+    "ogDescription": "Professional digital marketing services including SEO, social media, and advertising. Helping Kenyan businesses grow online from Nairobi to Mombasa and all 47 counties.",
+    "ogImage": "/img/services/digital-marketing-kenya-og.jpg",
+    "ogType": "website",
+    "author": "Kenya Bizz Directory",
+    "robots": "index, follow",
+    "aiAgent": {
+      "intent": "commercial",
+      "entities": [
+        "Kenya Bizz",
+        "digital marketing",
+        "SEO Kenya",
+        "social media marketing",
+        "online advertising",
+        "business directory",
+        "Nairobi",
+        "Mombasa",
+        "Kisumu"
+      ],
+      "topics": [
+        "digital marketing services",
+        "kenya marketing agency",
+        "seo optimization",
+        "social media management",
+        "online advertising",
+        "business growth",
+        "local seo kenya"
+      ],
+      "conversationalHooks": [
+        "What digital marketing services do you offer in Kenya?",
+        "How can I improve my business visibility online in Kenya?",
+        "What are your SEO services for Kenyan businesses?",
+        "How much does digital marketing cost in Kenya?",
+        "Best digital marketing agency in Nairobi",
+        "How to grow my business online in Kenya"
+      ]
+    }
+  },
   "all-listings": {
     "title": "All Business Listings in Kenya | Kenya Bizz Directory",
     "description": "Browse all verified business listings across Kenya. Find companies, services, and suppliers in Nairobi, Mombasa, Kisumu and other cities.",
@@ -34,8 +77,7 @@
     "canonical": "https://www.kenyabizzdirectory.com/shops-and-suppliers/main",
     "author": "Kenya Bizz Directory",
     "robots": "index, follow"
-  }
-  ,
+  },
   "global-listings": {
     "title": "Global Business Listings | International Companies & Services",
     "description": "Explore international business listings. Find companies and services across countries with contact details and categories.",
@@ -51,8 +93,7 @@
     "canonical": "https://www.kenyabizzdirectory.com/add-listing",
     "author": "Kenya Bizz Directory",
     "robots": "noindex, follow"
-  }
-  ,
+  },
   "manufacturing": {
     "title": "Listing Directory for Manufacturers in Kenya | Kenyabizz Directory",
     "description": "Discover Kenya’s top business directory for finding and connecting with reliable manufacturers, real estate firms, and service providers.",
@@ -63,8 +104,7 @@
     "ogTitle": "Kenya’s Best Listing Directory For Manufacturers | Kenyabizz Directory",
     "ogDescription": "Explore verified business listings across Kenya. From manufacturing to real estate, find and connect with industry leaders with ease.",
     "ogType": "website"
-  }
-  ,
+  },
   "real-estate": {
     "title": "Best Real Estate Listing Directory in Kenya | Kenyabizz Directory",
     "description": "Discover Kenya’s top real estate directory for buying, renting, or selling property. Search listings for homes, land, apartments, and commercial spaces across the country.",
@@ -75,8 +115,7 @@
     "ogTitle": "Kenya’s #1 Real Estate Directory - Find Your Ideal Property",
     "ogDescription": "Explore verified property listings across Kenya. From homes to commercial spaces, find and connect with real estate agents, sellers, and landlords with ease.",
     "ogType": "website"
-  }
-  ,
+  },
   "services": {
     "title": "Top Service Industry Listing Directory in Kenya | Kenyabizz Directory",
     "description": "Find the best professional services in Kenya and East Africa. Browse our directory for trusted financial advisors, travel agencies, and more.",
@@ -87,8 +126,7 @@
     "ogTitle": "Professional Services Directory in Kenya | Kenyabizz",
     "ogDescription": "Connect with leading service providers in East Africa. From financial and advisory firms to expert tour operators, find the partner you need.",
     "ogType": "website"
-  }
-  ,
+  },
   "shops-and-suppliers": {
     "title": "Top Shops & Suppliers in Kenya | Kenyabizz Directory",
     "description": "Find the best shops, hardware stores, electronics suppliers, and more in Kenya. Browse our directory for quality products and trusted vendors.",
