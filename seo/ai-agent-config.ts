@@ -261,7 +261,7 @@ export function generateAIAgentSchema(
         '@type': 'SearchAction',
         target: {
           '@type': 'EntryPoint',
-          urlTemplate: 'https://kenyabizz.com/search?q={search_term_string}',
+          urlTemplate: 'https://kenyabizzdirectory.com/search?q={search_term_string}',
           actionPlatform: [
             'https://schema.org/DesktopWebPlatform',
             'https://schema.org/MobileWebPlatform'

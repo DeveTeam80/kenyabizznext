@@ -84,7 +84,7 @@ export default function ContactForm() {
                   <div className="text-center">
                     <BsEnvelope size={32} className="text-primary mb-3" />
                     <h6 className="fw-medium mb-2">Email Us</h6>
-                    <p className="text-muted mb-0">marketing@kenyabizz.com</p>
+                    <p className="text-muted mb-0">marketing@kenyabizzdirectory.com</p>
                   </div>
                 </div>
                 <div className="col-md-4">
