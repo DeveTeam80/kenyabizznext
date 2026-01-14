@@ -5,7 +5,6 @@ import { getSession } from '@/app/lib/auth'
 import { checkRateLimit, getIdentifier } from '@/app/lib/rate-limit'
 import { 
   logRateLimitExceeded, 
-  logUnauthorizedAccess,
   logInvalidInput,
   logSuspiciousActivity 
 } from '@/app/lib/security-helpers'
@@ -14,14 +13,13 @@ export async function GET(request: NextRequest) {
   const identifier = getIdentifier(request)
 
   try {
-    // 🔥 CHANGE: Allow public access, but check session for personalization
+    // 🔥 Check session for personalization (optional)
     const rawSession = await getSession();
-const session = rawSession as any; // allows JWT payload without TS error
+    const session = rawSession as any;
 
-
-    // 🔒 Rate limit (more generous for public access)
+    // 🔒 Rate limit
     const rateLimit = checkRateLimit(identifier, {
-      limit: 60, // 🔥 Increased from 30
+      limit: 60,
       windowMs: 60000,
       blockDurationMs: 5 * 60000
     })
@@ -100,16 +98,16 @@ const session = rawSession as any; // allows JWT payload without TS error
     // 🔒 Query database
     let listings = await prisma.listing.findMany({
       where: {
-        approved: true, // 🔥 Only show approved listings for public
+        approved: true, // 🔥 Only show approved listings for suggestions
       },
       select: {
-        subCategory: true,
+        subCategories: true, // 🟢 Select the new JSON array field
         categories: true,
       },
-      take: 500,
+      take: 500, // Limit sample size for performance
     })
 
-    // Filter by category if specified
+    // Filter listings by parent category if specified
     if (categories.length > 0) {
       listings = listings.filter(listing => {
         const listingCategories = (listing.categories as any[]) || []
@@ -119,29 +117,39 @@ const session = rawSession as any; // allows JWT payload without TS error
       })
     }
 
-    let subCategories = [...new Set(
-      listings
-        .map(l => l.subCategory)
-        .filter(Boolean)
-        .filter(sub => sub.length <= 100)
-    )]
+    // 🟢 Flatten logic: Extract all tags from all listings
+    const allSubTags = listings.flatMap(l => {
+      // Cast the JSON field to string[] safely
+      const tags = (l.subCategories as string[]) || [];
+      return Array.isArray(tags) ? tags : [];
+    });
 
+    // Filter unique tags
+    let uniqueSubTags = [...new Set(
+      allSubTags
+        .filter(Boolean)
+        .map(tag => tag.trim())
+        .filter(tag => tag.length <= 100)
+    )];
+
+    // Apply search filter
     if (search) {
       const searchLower = search.toLowerCase()
-      subCategories = subCategories.filter(sub => 
+      uniqueSubTags = uniqueSubTags.filter(sub => 
         sub.toLowerCase().includes(searchLower)
       )
     }
 
-    const subCategoryCounts = listings.reduce((acc: any, listing) => {
-      const sub = listing.subCategory
-      if (sub && subCategories.includes(sub)) {
-        acc[sub] = (acc[sub] || 0) + 1
+    // Count occurrences for popularity sorting
+    const subCategoryCounts = allSubTags.reduce((acc: any, tag) => {
+      if (uniqueSubTags.includes(tag)) {
+        acc[tag] = (acc[tag] || 0) + 1
       }
       return acc
     }, {})
 
-    subCategories = subCategories
+    // Sort by count (descending) then alphabetical
+    uniqueSubTags = uniqueSubTags
       .sort((a, b) => {
         const countDiff = (subCategoryCounts[b] || 0) - (subCategoryCounts[a] || 0)
         if (countDiff !== 0) return countDiff
@@ -149,9 +157,10 @@ const session = rawSession as any; // allows JWT payload without TS error
       })
       .slice(0, limit)
 
-    const options = subCategories.map(sub => ({
+    // Format for React Select
+    const options = uniqueSubTags.map(sub => ({
       value: sub,
-      label: `${sub} (${subCategoryCounts[sub]} ${subCategoryCounts[sub] === 1 ? 'listing' : 'listings'})`,
+      label: `${sub} (${subCategoryCounts[sub]})`, // e.g. "Plumber (12)"
     }))
 
     return NextResponse.json(
@@ -165,7 +174,7 @@ const session = rawSession as any; // allows JWT payload without TS error
           'X-Frame-Options': 'DENY',
           'X-XSS-Protection': '1; mode=block',
           'X-RateLimit-Remaining': String(rateLimit.remaining),
-          'Cache-Control': 'public, s-maxage=300', // 🔥 Cache for 5 minutes
+          'Cache-Control': 'public, s-maxage=60', // 🔥 Cache for 1 min to keep suggestions fresh
         }
       }
     )

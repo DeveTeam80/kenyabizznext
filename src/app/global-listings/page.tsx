@@ -1,4 +1,6 @@
 // src/app/global-listings/page.tsx
+// Force dynamic rendering - data from API isn't available at build time
+export const dynamic = 'force-dynamic';
 import React from 'react';
 import { Metadata } from 'next';
 import { generateSEOMetadata } from '../../../lib/useSeo';
@@ -18,46 +20,46 @@ import { getListings, getSubCategories, getCities, ListingContext, FilterParams 
 import { ListData } from '@/app/data/data';
 
 interface SearchParams {
-  subCategory?: string;
-  city?: string;
-  rating?: string;
-  featured?: string;
-  verified?: string;
-  search?: string;
-  page?: string;
+    subCategory?: string;
+    city?: string;
+    rating?: string;
+    featured?: string;
+    verified?: string;
+    search?: string;
+    page?: string;
 }
 
-export default async function GlobalListingsPage({ 
-  searchParams 
-}: { 
-  searchParams: Promise<SearchParams>;
+export default async function GlobalListingsPage({
+    searchParams
+}: {
+    searchParams: Promise<SearchParams>;
 }) {
     const filters = await searchParams;
-    
+
     const currentPage = parseInt(filters.page || '1');
     const itemsPerPage = 8;
 
     const filterParams: FilterParams = {
-      subCategory: filters.subCategory,
-      city: filters.city,
-      rating: filters.rating,
-      featured: filters.featured === 'true',
-      verified: filters.verified === 'true',
-      search: filters.search
+        subCategory: filters.subCategory,
+        city: filters.city,
+        rating: filters.rating,
+        featured: filters.featured === 'true',
+        verified: filters.verified === 'true',
+        search: filters.search
     };
 
     const [{ listings, totalPages, totalItems }, subCategories, cities] = await Promise.all([
-    getListings(ListingContext.GLOBAL, filterParams, currentPage, itemsPerPage),
-    getSubCategories(undefined, ListingContext.GLOBAL),
-    getCities(undefined, ListingContext.GLOBAL)
-]);
+        getListings(ListingContext.GLOBAL, filterParams, currentPage, itemsPerPage),
+        getSubCategories(undefined, ListingContext.GLOBAL),
+        getCities(undefined, ListingContext.GLOBAL)
+    ]);
 
     // Breadcrumb items for global listings page
     const breadcrumbItems = [
-      {
-        label: 'Global Listings',
-        active: true
-      }
+        {
+            label: 'Global Listings',
+            active: true
+        }
     ];
 
     return (
@@ -81,9 +83,9 @@ export default async function GlobalListingsPage({
                                                             <div className="flexStart ps-2">
                                                                 <span className="fw-semibold text-dark">Find</span>
                                                             </div>
-                                                            <input 
-                                                                type="text" 
-                                                                className="form-control fs-6 fw-medium border-0" 
+                                                            <input
+                                                                type="text"
+                                                                className="form-control fs-6 fw-medium border-0"
                                                                 placeholder="What are you looking for?"
                                                             />
                                                         </div>
@@ -95,9 +97,9 @@ export default async function GlobalListingsPage({
                                                             <div className="flexStart ps-2">
                                                                 <span className="fw-semibold text-dark">Where</span>
                                                             </div>
-                                                            <input 
-                                                                type="text" 
-                                                                className="form-control fs-6 fw-medium border-0" 
+                                                            <input
+                                                                type="text"
+                                                                className="form-control fs-6 fw-medium border-0"
                                                                 placeholder="Location"
                                                             />
                                                         </div>
@@ -108,7 +110,7 @@ export default async function GlobalListingsPage({
                                         <div className="col-xl-2 col-lg-3 col-md-12 col-sm-12">
                                             <div className="form-group">
                                                 <button type="button" className="btn btn-primary rounded-pill w-100 fw-medium">
-                                                    <BsSearch className="me-2"/>Search
+                                                    <BsSearch className="me-2" />Search
                                                 </button>
                                             </div>
                                         </div>
@@ -130,7 +132,7 @@ export default async function GlobalListingsPage({
                         <div className="col-xl-4 col-lg-4 col-md-12 col-sm-12">
                             <ListSidebarOne subCategories={subCategories} cities={cities} />
                         </div>
-                        
+
                         <div className="col-xl-8 col-lg-8 col-md-12 col-sm-12">
                             <div className="row align-items-center justify-content-between mb-4">
                                 <div className="col-xl-7 col-lg-7 col-md-7 col-sm-12 col-12">
@@ -156,15 +158,15 @@ export default async function GlobalListingsPage({
                                     </div>
                                 </div>
                             </div>
-                            
+
                             {listings.length === 0 ? (
                                 <div className="row">
                                     <div className="col-12 text-center py-5">
                                         <div className="py-5">
                                             <h5 className="mb-3">No global listings found</h5>
                                             <p className="text-muted mb-4">
-                                                {Object.values(filterParams).some(v => v) 
-                                                    ? 'Try adjusting your filters or search criteria.' 
+                                                {Object.values(filterParams).some(v => v)
+                                                    ? 'Try adjusting your filters or search criteria.'
                                                     : 'There are no global listings available yet.'
                                                 }
                                             </p>
@@ -182,7 +184,7 @@ export default async function GlobalListingsPage({
                                         {listings.map((item: ListData) => {
                                             const primaryCategory = item.categories.find(cat => cat.isPrimary);
                                             const displayCategory = primaryCategory || item.categories[0];
-                                            
+
                                             return (
                                                 <div className="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12" key={item.id}>
                                                     <div className="listingitem-container">
@@ -196,28 +198,28 @@ export default async function GlobalListingsPage({
                                                                             </span>
                                                                             {item.featured && (
                                                                                 <span className="badge badge-xs badge-transparent">
-                                                                                    <BsStars className="mb-0 me-1"/>Featured
+                                                                                    <BsStars className="mb-0 me-1" />Featured
                                                                                 </span>
                                                                             )}
                                                                         </div>
                                                                     </div>
-                                                                    <Image 
-                                                                        src={item.image} 
-                                                                        width={400} 
-                                                                        height={250} 
-                                                                        style={{width:'100%', height:'270px', objectFit:'cover'}} 
-                                                                        className="img-fluid" 
+                                                                    <Image
+                                                                        src={item.image}
+                                                                        width={400}
+                                                                        height={250}
+                                                                        style={{ width: '100%', height: '270px', objectFit: 'cover' }}
+                                                                        className="img-fluid"
                                                                         alt={item.title}
                                                                     />
                                                                 </Link>
                                                                 <div className="position-absolute end-0 bottom-0 me-3 mb-3 z-2">
-                                                                    <Link 
-                                                                        href={`/global-listings/${displayCategory?.slug}/${item.slug}`} 
-                                                                        className="bookmarkList" 
-                                                                        data-bs-toggle="tooltip" 
+                                                                    <Link
+                                                                        href={`/global-listings/${displayCategory?.slug}/${item.slug}`}
+                                                                        className="bookmarkList"
+                                                                        data-bs-toggle="tooltip"
                                                                         data-bs-title="Save Listing"
                                                                     >
-                                                                        <BsSuitHeart className="m-0"/>
+                                                                        <BsSuitHeart className="m-0" />
                                                                     </Link>
                                                                 </div>
                                                             </div>
@@ -228,7 +230,7 @@ export default async function GlobalListingsPage({
                                                                             {item.title}
                                                                             {item.isVerified && (
                                                                                 <span className="verified">
-                                                                                    <BsPatchCheckFill className="bi bi-patch-check-fill m-0"/>
+                                                                                    <BsPatchCheckFill className="bi bi-patch-check-fill m-0" />
                                                                                 </span>
                                                                             )}
                                                                         </Link>
@@ -250,11 +252,11 @@ export default async function GlobalListingsPage({
                                                                 <div className="d-flex align-items-center justify-content-between gap-2">
                                                                     <div className="catdWraps">
                                                                         <div className="flex-start">
-                                                                            <Link 
-                                                                                href={`/global-listings/${displayCategory?.slug}/${item.slug}`} 
+                                                                            <Link
+                                                                                href={`/global-listings/${displayCategory?.slug}/${item.slug}`}
                                                                                 className="d-flex align-items-center justify-content-start gap-2"
                                                                             >
-                                                                                <span className="catTitle">{displayCategory?.name || item.subCategory}</span>
+                                                                                <span className="catTitle">{displayCategory?.name || item.subCategories?.[0] || 'General'}</span>
                                                                             </Link>
                                                                         </div>
                                                                     </div>
@@ -274,7 +276,7 @@ export default async function GlobalListingsPage({
                                             );
                                         })}
                                     </div>
-                                    
+
                                     <div className="row align-items-center justify-content-center mt-5">
                                         <div className="col-xl-12 col-lg-12 col-md-12">
                                             <Pagination currentPage={currentPage} totalPages={totalPages} />
@@ -287,13 +289,13 @@ export default async function GlobalListingsPage({
                 </div>
             </section>
 
-            <FooterTop/>
-            <Footer/>
-            <BackToTop/>
+            <FooterTop />
+            <Footer />
+            <BackToTop />
         </>
     );
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  return generateSEOMetadata('/global-listings');
+    return generateSEOMetadata('/global-listings');
 }

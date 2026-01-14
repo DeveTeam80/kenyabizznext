@@ -1,3 +1,5 @@
+// Force dynamic rendering - data from API isn't available at build time
+export const dynamic = 'force-dynamic';
 import Link from "next/link";
 import { BsMouse } from "react-icons/bs";
 import CategoryOne from "./components/categories/category-one";
@@ -124,5 +126,5 @@ export default function Home() {
 }
 // At the bottom - add/replace generateMetadata
 export async function generateMetadata(): Promise<Metadata> {
-  return generateSEOMetadata('/')
+    return generateSEOMetadata('/')
 }

@@ -1,4 +1,6 @@
 // src/app/about/page.tsx (Server Component - Remove "use client")
+// Force dynamic rendering - data from API isn't available at build time
+export const dynamic = 'force-dynamic';
 import React from 'react'
 import { Metadata } from 'next'
 import { generateSEOMetadata } from '../../../lib/useSeo';

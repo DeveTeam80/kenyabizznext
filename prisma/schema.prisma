@@ -36,6 +36,22 @@ model User {
   listings  Listing[]
 }
 
+model Category {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  slug        String   @unique
+  description String?  @db.Text
+  icon        String?
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([slug])
+  @@index([isActive])
+}
+
 model Listing {
   id                   Int      @id @default(autoincrement())
   userId               Int
@@ -58,7 +74,7 @@ model Listing {
   // Location - 🆕 Enhanced location fields
   city                 String
   location             String
-  subCategory          String
+  subCategories  Json    @default("[]")
   isGlobal             Boolean  @default(false)  // 🆕 true if outside Kenya
   locationConfirmation String?  // 🆕 'kenya' | 'other' | null
   locationVerified     Boolean  @default(false)  // 🆕 Admin verified
@@ -76,13 +92,25 @@ model Listing {
   
   // Categories
   categories           Json
+
+  //Plan
+  isPaid              Boolean   @default(false)
+  subscriptionTier    String?
+  subscriptionExpiry  DateTime?
+  ghlFormUrl          String?   // Go High Level form embed URL
   
   // Detailed Info
   fullDescription      Json
   locations            Json
   contentSectionTitle  String?
   contentBlocks        Json?
-  reviews              Json?
+  
+  // FAQs and Reviews (Premium Features)
+  faqs                 Json?   @default("[]")  // Array of {question, answer}
+  enableFaqs           Boolean @default(false)
+  reviews              Json?   @default("[]")  // Array of {title, comment, name, designation, rating, date}
+  enableReviews        Boolean @default(false)
+  
   workingHours         Json?
   tags                 Json?
   socials              Json?
@@ -94,7 +122,6 @@ model Listing {
   @@index([userId])
   @@index([approved])
   @@index([city])
-  @@index([subCategory])
   @@index([slug])
   @@index([isGlobal])  // 🆕 For filtering local vs global
   @@index([locationVerified])  // 🆕 For admin dashboard

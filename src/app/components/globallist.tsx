@@ -24,7 +24,7 @@ export default function GlobalList({ relatedListings }: GlobalListProps) {
           <h4 className="listingcollapseTitle">Similar Global Lists</h4>
         </Link>
       </div>
-      
+
       <div id="similar" className="panel-collapse collapse show">
         <div className="card-body p-4 pt-2">
           <Swiper
@@ -44,7 +44,7 @@ export default function GlobalList({ relatedListings }: GlobalListProps) {
             {relatedListings.map((item) => {
               const primaryCategory = item.categories.find(cat => cat.isPrimary);
               const displayCategory = primaryCategory || item.categories[0];
-              
+
               return (
                 <SwiperSlide className="singleItem" key={item.id}>
                   <div className="listingitem-container">
@@ -52,7 +52,7 @@ export default function GlobalList({ relatedListings }: GlobalListProps) {
                       <div className="listing-top-item">
                         <div className="position-absolute end-0 top-0 me-3 mt-3 z-2">
                           <Link href="#" className="bookmarkList" data-bs-toggle="tooltip" data-bs-title="Save Listing">
-                            <BsSuitHeart className="m-0"/>
+                            <BsSuitHeart className="m-0" />
                           </Link>
                         </div>
                         <Link href={`/global-listings/${displayCategory?.slug}/${item.slug}`} className="topLink">
@@ -67,13 +67,13 @@ export default function GlobalList({ relatedListings }: GlobalListProps) {
                               <span className="badge badge-xs bg-info text-white">Global</span>
                             </div>
                           </div>
-                          <Image 
-                            src={item.image} 
-                            width={0} 
-                            height={0} 
-                            sizes='100vw' 
-                            style={{ width: '100%', height: '270px', objectFit: 'cover' }} 
-                            className="img-fluid" 
+                          <Image
+                            src={item.image}
+                            width={0}
+                            height={0}
+                            sizes='100vw'
+                            style={{ width: '100%', height: '270px', objectFit: 'cover' }}
+                            className="img-fluid"
                             alt={item.title}
                           />
                         </Link>
@@ -85,7 +85,7 @@ export default function GlobalList({ relatedListings }: GlobalListProps) {
                                   {item.title}
                                   {item.isVerified && (
                                     <span className="verified">
-                                      <BsPatchCheckFill className="bi bi-patch-check-fill m-0"/>
+                                      <BsPatchCheckFill className="bi bi-patch-check-fill m-0" />
                                     </span>
                                   )}
                                 </Link>
@@ -93,10 +93,10 @@ export default function GlobalList({ relatedListings }: GlobalListProps) {
                               <div className="list-infos">
                                 <div className="gap-3 mt-1">
                                   <div className="list-distance text-light d-flex align-items-center">
-                                    <BsGeoAlt className="mb-0 me-2"/>{item.city}
+                                    <BsGeoAlt className="mb-0 me-2" />{item.city}
                                   </div>
                                   <div className="list-calls text-light hide-mob mt-1 d-flex align-items-center">
-                                    <BsTelephone className="mb-0 me-2"/>{item.call}
+                                    <BsTelephone className="mb-0 me-2" />{item.call}
                                   </div>
                                 </div>
                               </div>
@@ -109,17 +109,17 @@ export default function GlobalList({ relatedListings }: GlobalListProps) {
                           <div className="catdWraps">
                             <div className="flex-start">
                               <Link href={`/global-listings/${displayCategory?.slug}/${item.slug}`} className="d-flex align-items-center justify-content-start gap-2">
-                                <span className="catTitle">{displayCategory?.name || item.subCategory}</span>
+                                <span className="catTitle">{displayCategory?.name || item.subCategories?.[0] || 'General'}</span>
                               </Link>
                             </div>
                           </div>
                           <div className="listing-rates">
                             <span className="d-flex align-items-center justify-content-start gap-1 text-sm">
-                              <BsStarFill className="mb-0 text-warning"/>
-                              <BsStarFill className="mb-0 text-warning"/>
-                              <BsStarFill className="mb-0 text-warning"/>
-                              <BsStarFill className="mb-0 text-warning"/>
-                              <BsStarFill className="mb-0 text-warning"/>
+                              <BsStarFill className="mb-0 text-warning" />
+                              <BsStarFill className="mb-0 text-warning" />
+                              <BsStarFill className="mb-0 text-warning" />
+                              <BsStarFill className="mb-0 text-warning" />
+                              <BsStarFill className="mb-0 text-warning" />
                             </span>
                             <span className="text-md text-muted-2 hide-mob mt-2">{item.review}</span>
                           </div>

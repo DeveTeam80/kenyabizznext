@@ -1,0 +1,31 @@
+/* Add to your globals.css or custom.scss */
+
+/* Premium Banner Gradient */
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Alternative gradients - pick one you like */
+.bg-gradient-primary-alt1 {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+}
+
+.bg-gradient-primary-alt2 {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+.bg-gradient-primary-alt3 {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+}
+
+/* If you want to use your brand colors, adjust to: */
+.bg-gradient-brand {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+}
+
+/* Premium banner hover effect for button */
+.bg-gradient-primary .btn-white:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}

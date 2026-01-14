@@ -7,84 +7,47 @@ export async function GET(request: NextRequest) {
   const identifier = getIdentifier(request)
 
   try {
-    // Rate limit: 100 requests per minute for public API
+    // Rate limit: 100 requests per minute
     const rateLimit = checkRateLimit(`public-listings-${identifier}`, {
       limit: 100,
       windowMs: 60000
     })
 
     if (!rateLimit.allowed) {
-      return NextResponse.json(
-        { error: 'Too many requests' },
-        { status: 429 }
-      )
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
     }
 
     const { searchParams } = new URL(request.url)
-    
+
     // Parse query parameters
     const page = parseInt(searchParams.get('page') || '1')
     const limit = Math.min(parseInt(searchParams.get('limit') || '12'), 50)
     const categorySlug = searchParams.get('category')
-    const subCategory = searchParams.get('subCategory')
+    const subCategory = searchParams.get('subCategory') // Exact filter
     const city = searchParams.get('city')
-    const search = searchParams.get('search')
+    const search = searchParams.get('search') // Search term
     const featured = searchParams.get('featured') === 'true'
     const context = searchParams.get('context') || 'local'
 
-    // Build where clause
+    // 1. Build DB Query (Basic Filters Only)
+    // We REMOVE the search text filter from here to handle it in JS
     const where: any = {
       approved: true,
     }
 
-    // Filter by context (Kenya vs Global)
     if (context === 'local') {
       where.isGlobal = false
     } else if (context === 'global') {
       where.isGlobal = true
     }
 
-    // 🔥 FIX: Filter by category - Use raw SQL for JSON queries
-    let categoryFilter = ''
-    if (categorySlug) {
-      // We'll filter after fetch since Prisma JSON queries are complex
-    }
-
-    // Filter by subcategory
-    if (subCategory) {
-      where.subCategory = {
-        equals: subCategory,
-        mode: 'insensitive'
-      }
-    }
-
-    // Filter by city
-    if (city) {
-      where.city = {
-        contains: city,
-        mode: 'insensitive'
-      }
-    }
-
-    // Filter by search query
-    if (search && search.trim()) {
-      const searchTerm = search.trim()
-      where.OR = [
-        { title: { contains: searchTerm, mode: 'insensitive' } },
-        { desc: { contains: searchTerm, mode: 'insensitive' } },
-        { subCategory: { contains: searchTerm, mode: 'insensitive' } },
-        { city: { contains: searchTerm, mode: 'insensitive' } },
-        { location: { contains: searchTerm, mode: 'insensitive' } },
-      ]
-    }
-
-    // Filter by featured
     if (featured) {
       where.featured = true
     }
 
-    // 🔥 FIX: Get all listings first, then filter by category in JS
-    // This is a temporary solution - we'll optimize later
+    // 2. Fetch ALL Candidates
+    // We fetch all approved listings for the context to ensure we don't miss 
+    // matches hidden inside the JSON arrays (subCategories).
     const allListings = await prisma.listing.findMany({
       where,
       orderBy: [
@@ -93,16 +56,55 @@ export async function GET(request: NextRequest) {
       ],
     })
 
-    // 🔥 FIX: Filter by category in JavaScript
+    // 3. 🟢 COMPREHENSIVE JAVASCRIPT FILTERING
     let filteredListings = allListings
+
+    // Filter by Category Slug
     if (categorySlug) {
-      filteredListings = allListings.filter(listing => {
-        const categories = listing.categories as any[]
-        return categories?.some(cat => cat.slug === categorySlug)
+      filteredListings = filteredListings.filter(listing => {
+        const categories = (listing.categories as any[]) || []
+        return categories.some(cat => cat.slug === categorySlug)
       })
     }
 
-    // Calculate pagination
+    // Filter by SubCategory (Exact Match from Dropdown)
+    if (subCategory) {
+      const targetSub = subCategory.toLowerCase().trim()
+      filteredListings = filteredListings.filter(listing => {
+        const subs = (listing.subCategories as string[]) || []
+        return subs.some(s => s.toLowerCase() === targetSub)
+      })
+    }
+
+    // Filter by City (Partial Match)
+    if (city) {
+      const targetCity = city.toLowerCase().trim()
+      filteredListings = filteredListings.filter(listing => 
+        listing.city.toLowerCase().includes(targetCity)
+      )
+    }
+
+    // 🟢 Filter by SEARCH TERM (The "Common" Search)
+    // Checks: Title, Description, City, Location, AND SubCategories
+    if (search && search.trim()) {
+      const query = search.toLowerCase().trim()
+      
+      filteredListings = filteredListings.filter(listing => {
+        // Basic fields
+        const inTitle = listing.title.toLowerCase().includes(query)
+        const inDesc = listing.desc.toLowerCase().includes(query)
+        const inCity = listing.city.toLowerCase().includes(query)
+        const inLocation = listing.location.toLowerCase().includes(query)
+        
+        // 🟢 Array check: Does any subcategory match the search term?
+        const subs = (listing.subCategories as string[]) || []
+        const inSubCategories = subs.some(s => s.toLowerCase().includes(query))
+
+        return inTitle || inDesc || inCity || inLocation || inSubCategories
+      })
+    }
+
+    // 4. Pagination
     const totalCount = filteredListings.length
     const totalPages = Math.ceil(totalCount / limit)
     const skip = (page - 1) * limit

@@ -1,4 +1,3 @@
-// src/app/dashboard/add-listing/page.tsx
 'use client'
 
 import React, { useState } from 'react'
@@ -17,9 +16,13 @@ export default function AddListingPage() {
     setLoading(true)
 
     try {
-      // Validate required fields
+      // 🟢 Update Validation: Check for subCategories array length
       if (!data.title || !data.slug || !data.city || !data.desc || !data.call || !data.email) {
         throw new Error('Please fill in all required fields')
+      }
+
+      if (data.subCategories.length === 0) {
+        throw new Error('Please select or create at least one subcategory')
       }
 
       if (!data.logo || !data.image || !data.bannerImage) {
@@ -36,31 +39,40 @@ export default function AddListingPage() {
         bannerImage: data.bannerImage,
         city: data.city,
         location: data.location,
-        subCategory: data.subCategory,
+
+        // 🟢 Send the array of subcategories
+        subCategories: data.subCategories,
+
         call: data.call,
         email: data.email,
         website: data.website,
-        categories: [
-          {
-            slug: data.subCategory,
-            name: data.subCategory,
-            isPrimary: true
-          }
-        ],
+
+        // 🟢 Use the actual selected categories from the form
+        categories: data.categories,
+
         fullDescription: data.fullDescription.filter(p => p.trim() !== ''),
         locations: data.locations,
         contentSectionTitle: data.contentSectionTitle,
         contentBlocks: data.contentBlocks,
-        workingHours: data.open24_7 
+        workingHours: data.open24_7
           ? [{ day: 'All Days', hours: '24/7' }]
           : data.workingHours
-              .filter(wh => wh.opening && wh.closing)
-              .map(wh => ({
-                day: wh.day,
-                hours: `${wh.opening} - ${wh.closing}`
-              })),
+            .filter(wh => wh.opening && wh.closing)
+            .map(wh => ({
+              day: wh.day,
+              hours: `${wh.opening} - ${wh.closing}`
+            })),
         tags: data.tags,
         socials: data.socials,
+        // 🆕 Include location confirmation
+        locationConfirmation: data.locationConfirmation,
+        // 🆕 FAQs and Reviews
+        faqs: data.faqs || [],
+        enableFaqs: data.enableFaqs || false,
+        reviews: data.reviews || [],
+        enableReviews: data.enableReviews || false,
+          ghlFormUrl: data.ghlFormUrl || '',
+
       }
 
       const res = await fetch('/api/listings', {
@@ -76,7 +88,7 @@ export default function AddListingPage() {
       }
 
       setSuccess(true)
-      
+
       setTimeout(() => {
         router.push('/dashboard/my-listings')
       }, 2000)

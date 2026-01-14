@@ -1,11 +1,13 @@
-// src/app/listings/[categorySlug]/page.tsx
+// src/app/listings/[categorySlug]/page.tsx - WITH PREMIUM BANNER
+// Force dynamic rendering - data from API isn't available at build time
+export const dynamic = 'force-dynamic';
+
 import React from 'react';
 import { Metadata } from 'next';
 import { generateCategoryPageSEOMetadata } from '../../../../lib/useSeo';
 import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import { IconType } from 'react-icons';
 import { BsGeoAlt, BsPatchCheckFill, BsSearch, BsStars, BsSuitHeart, BsTelephone } from 'react-icons/bs';
 
 import NavbarServerWrapper from '@/app/components/navbar/navabar-server';
@@ -15,7 +17,7 @@ import Footer from '@/app/components/footer/footer';
 import BackToTop from '@/app/components/back-to-top';
 import Pagination from '@/app/components/pagination';
 import Breadcrumb from '@/app/components/breadcrumb';
-
+import PremiumBanner from '@/app/components/banner';
 import { getListings, getCategoryDetails, getSubCategories, getCities, ListingContext, FilterParams } from '@/app/lib/data';
 import { ListData } from '@/app/data/data';
 import HeroSearch from '@/app/components/hero-search';
@@ -50,6 +52,7 @@ export default async function ListingCategoryPage({
         featured: filters.featured === 'true',
         verified: filters.verified === 'true',
         search: filters.search
+        // 🔥 NO paidOnly here - API handles it automatically when categorySlug is passed
     };
 
     const [{ listings, totalPages, totalItems }, category, subCategories, cities] = await Promise.all([
@@ -101,6 +104,14 @@ export default async function ListingCategoryPage({
                 <Breadcrumb items={breadcrumbItems} />
             </section>
 
+            {/* 🆕 PREMIUM BANNER - Only show if there are listings */}
+            {totalItems > 0 && (
+                <PremiumBanner
+                    categoryName={category.name}
+                    paidCount={totalItems}
+                />
+            )}
+
             <section>
                 <div className="container">
                     <div className="row g-4">
@@ -112,7 +123,7 @@ export default async function ListingCategoryPage({
                             <div className="row align-items-center justify-content-between mb-4">
                                 <div className="col-xl-7 col-lg-7 col-md-7 col-sm-12 col-12">
                                     <p className="text-muted mb-0">
-                                        Showing {listings.length} of {totalItems} results
+                                        Showing {listings.length} of {totalItems} premium listings
                                         {Object.values(filterParams).some(v => v) && ' (filtered)'}
                                     </p>
                                 </div>
@@ -136,20 +147,31 @@ export default async function ListingCategoryPage({
 
                             {listings.length === 0 ? (
                                 <div className="row">
-                                    <div className="col-12 text-center py-5">
-                                        <div className="py-5">
-                                            <h5 className="mb-3">No listings found</h5>
-                                            <p className="text-muted mb-4">
-                                                {Object.values(filterParams).some(v => v)
-                                                    ? 'Try adjusting your filters or search criteria.'
-                                                    : 'There are no listings available in this category yet.'
-                                                }
-                                            </p>
-                                            {Object.values(filterParams).some(v => v) && (
-                                                <Link href={`/listings/${categorySlug}`} className="btn btn-primary">
-                                                    Clear Filters
-                                                </Link>
-                                            )}
+                                    <div className="col-12">
+                                        <div className="card border-0 shadow-sm rounded-3 text-center py-5 my-4">
+                                            <div className="card-body py-5">
+                                                <div className="square--80 circle bg-light-primary mx-auto mb-4">
+                                                    <BsSearch className="fs-1 text-primary" />
+                                                </div>
+                                                <h4 className="fw-semibold mb-3">No Premium Listings Yet</h4>
+                                                <p className="text-muted mb-4 mx-auto" style={{ maxWidth: '500px' }}>
+                                                    {Object.values(filterParams).some(v => v)
+                                                        ? `No premium businesses match your current filters in ${category.name}. Try adjusting your search criteria.`
+                                                        : `We're currently curating premium businesses in ${category.name}. Check back soon or explore all listings.`
+                                                    }
+                                                </p>
+                                                <div className="d-flex gap-3 justify-content-center flex-wrap">
+                                                    {Object.values(filterParams).some(v => v) && (
+                                                        <Link href={`/listings/${categorySlug}`} className="btn btn-outline-primary px-4">
+                                                            Clear Filters
+                                                        </Link>
+                                                    )}
+                                                    <Link href="/listings" className="btn btn-primary px-4">
+                                                        <BsSearch className="me-2" />
+                                                        Browse All Listings
+                                                    </Link>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -221,7 +243,7 @@ export default async function ListingCategoryPage({
                                                                                 href={`/listings/${displayCategory?.slug}/${item.slug}`}
                                                                                 className="d-flex align-items-center justify-content-start gap-2"
                                                                             >
-                                                                                <span className="catTitle">{displayCategory?.name || item.subCategory}</span>
+                                                                                <span className="catTitle">{displayCategory?.name || item.subCategories?.[0] || 'General'}</span>
                                                                             </Link>
                                                                         </div>
                                                                     </div>
@@ -261,11 +283,10 @@ export default async function ListingCategoryPage({
     );
 }
 
-// ✅ FIXED: params must be a Promise and must be awaited
-export async function generateMetadata({ 
-    params 
-}: { 
-    params: Promise<{ categorySlug: string }> 
+export async function generateMetadata({
+    params
+}: {
+    params: Promise<{ categorySlug: string }>
 }): Promise<Metadata> {
     const { categorySlug } = await params;
     return generateCategoryPageSEOMetadata(categorySlug, { pathname: `/listings/${categorySlug}` });

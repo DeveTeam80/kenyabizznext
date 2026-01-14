@@ -1,6 +1,18 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // 🟢 1. Add this images configuration block
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        port: '',
+        pathname: '/**', // Allow all paths from Cloudinary
+      },
+    ],
+  },
+
   async headers() {
     return [
       {

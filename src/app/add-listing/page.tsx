@@ -1,3 +1,5 @@
+// Force dynamic rendering - data from API isn't available at build time
+export const dynamic = 'force-dynamic';
 import React from 'react';
 import { Metadata } from 'next';
 import { generateSEOMetadata } from '../../../lib/useSeo';
@@ -39,7 +41,7 @@ export default function AddListingPage() {
   return (
     <>
       <NavbarDark />
-      
+
       {/* Hero Banner */}
       <div className="image-cover hero-banner overflow-hidden py-12" style={{ backgroundImage: `url('/img/banner/listing-banner.jpg')`, backgroundColor: '#e7f0eb' }}>
         <div className="container">
@@ -67,7 +69,7 @@ export default function AddListingPage() {
               <h2 className="display-4 fw-bold mb-4">Why List Your Business on Kenya Bizz?</h2>
             </div>
           </div>
-          
+
           <div className="row g-4 mt-4">
             {benefits.map((benefit, index) => {
               const Icon = benefit.icon;
@@ -104,7 +106,7 @@ export default function AddListingPage() {
               {/* Embedded Form */}
               <div className="card border-0 shadow-sm">
                 <div className="card-body p-0">
-                  <iframe 
+                  <iframe
                     src="https://app.visionarybizz.com/widget/form/aOxhEvXglRo4YHMlWYLx"
                     style={{ width: '100%', height: '776px', border: 'none', borderRadius: '8px' }}
                     id="inline-aOxhEvXglRo4YHMlWYLx"

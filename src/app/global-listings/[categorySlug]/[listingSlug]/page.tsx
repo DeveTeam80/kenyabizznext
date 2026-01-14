@@ -1,3 +1,5 @@
+// Force dynamic rendering - data from API isn't available at build time
+export const dynamic = 'force-dynamic';
 import React from 'react';
 import { Metadata } from 'next';
 import { generateListingPageSEOMetadata } from '../../../../../lib/useSeo';
@@ -98,7 +100,7 @@ export default async function GlobalSingleListingPage({
                                                         </div>
                                                         <div className="flexItem me-2">
                                                             <span className="text-md fw-medium text-light d-flex align-items-center">
-                                                                <BsBriefcase className="me-2" />{displayCategory?.name || listing.subCategory}
+                                                                <BsBriefcase className="me-2" />{displayCategory?.name || listing.subCategories?.[0] || 'General'}
                                                             </span>
                                                         </div>
                                                     </div>
@@ -176,14 +178,14 @@ export default async function GlobalSingleListingPage({
 }
 
 // ✅ FIXED: params must be a Promise and must be awaited
-export async function generateMetadata({ 
-    params 
-}: { 
-    params: Promise<{ categorySlug: string; listingSlug: string }> 
+export async function generateMetadata({
+    params
+}: {
+    params: Promise<{ categorySlug: string; listingSlug: string }>
 }): Promise<Metadata> {
     const { categorySlug, listingSlug } = await params;
-    return generateListingPageSEOMetadata(categorySlug, listingSlug, { 
-        context: ListingContext.GLOBAL, 
-        basePath: '/global-listings' 
+    return generateListingPageSEOMetadata(categorySlug, listingSlug, {
+        context: ListingContext.GLOBAL,
+        basePath: '/global-listings'
     });
 }

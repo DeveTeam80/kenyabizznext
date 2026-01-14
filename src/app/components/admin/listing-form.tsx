@@ -24,7 +24,7 @@ export interface ListingFormData {
     title: string
     slug: string
     desc: string
-    subCategory: string
+    subCategories: string[]
     logo: string
     image: string
     bannerImage: string
@@ -63,6 +63,13 @@ export interface ListingFormData {
     }
     // 🆕 New location fields
     locationConfirmation?: 'kenya' | 'other'
+    // 🆕 FAQs and Reviews (Premium Features)
+    faqs: { question: string; answer: string }[]
+    enableFaqs: boolean
+    reviews: { title: string; comment: string; name: string; designation: string; rating: number; date?: string }[]
+    enableReviews: boolean
+    // 🆕 Go High Level Form URL
+    ghlFormUrl?: string
 }
 
 interface ListingFormProps {
@@ -87,7 +94,7 @@ export default function ListingForm({
         title: initialData?.title || '',
         slug: initialData?.slug || '',
         desc: initialData?.desc || '',
-        subCategory: initialData?.subCategory || '',
+        subCategories: initialData?.subCategories || [],
         logo: initialData?.logo || '',
         image: initialData?.image || '',
         bannerImage: initialData?.bannerImage || '',
@@ -119,31 +126,65 @@ export default function ListingForm({
         tags: initialData?.tags || [],
         socials: initialData?.socials || {},
         locationConfirmation: initialData?.locationConfirmation,
+        // 🆕 FAQs and Reviews
+        faqs: initialData?.faqs || [],
+        enableFaqs: initialData?.enableFaqs || false,
+        reviews: initialData?.reviews || [],
+        enableReviews: initialData?.enableReviews || false,
+        // 🆕 Go High Level Form URL
+        ghlFormUrl: initialData?.ghlFormUrl || '',
     })
     const [selectedCategories, setSelectedCategories] = useState<Array<{ slug: string, name: string, isPrimary: boolean }>>(
         initialData?.categories || []
     )
-
+    const [categoryOptions, setCategoryOptions] = useState<Array<{ value: string, label: string }>>([])
+    const [loadingCategories, setLoadingCategories] = useState(true)
     // Fixed category options (curated, cannot be created by users)
-    const categoryOptions = [
-        { value: 'real-estate', label: 'Real Estate' },
-        { value: 'manufacturing', label: 'Manufacturing' },
-        { value: 'services', label: 'Services' },
-        { value: 'technology', label: 'Technology' },
-        { value: 'shops-suppliers', label: 'Shops & Suppliers' },
-        { value: 'healthcare', label: 'Healthcare' },
-        { value: 'education', label: 'Education' },
-        { value: 'hospitality', label: 'Hospitality & Tourism' },
-        { value: 'finance', label: 'Finance & Banking' },
-        { value: 'automotive', label: 'Automotive' },
-        { value: 'construction', label: 'Construction' },
-        { value: 'agriculture', label: 'Agriculture' },
-        { value: 'logistics', label: 'Logistics & Transportation' },
-        { value: 'media', label: 'Media & Entertainment' },
-    ]
+    // const categoryOptions = [
+    //     { value: 'real-estate', label: 'Real Estate' },
+    //     { value: 'manufacturing', label: 'Manufacturing' },
+    //     { value: 'services', label: 'Services' },
+    //     { value: 'technology', label: 'Technology' },
+    //     { value: 'shops-suppliers', label: 'Shops & Suppliers' },
+    //     { value: 'healthcare', label: 'Healthcare' },
+    //     { value: 'education', label: 'Education' },
+    //     { value: 'hospitality', label: 'Hospitality & Tourism' },
+    //     { value: 'finance', label: 'Finance & Banking' },
+    //     { value: 'automotive', label: 'Automotive' },
+    //     { value: 'construction', label: 'Construction' },
+    //     { value: 'agriculture', label: 'Agriculture' },
+    //     { value: 'logistics', label: 'Logistics & Transportation' },
+    //     { value: 'media', label: 'Media & Entertainment' },
+    // ]
     // SubCategory options from database
     const [subCategoryOptions, setSubCategoryOptions] = useState<Array<{ value: string, label: string }>>([])
     const [loadingSubCategories, setLoadingSubCategories] = useState(false)
+    // Add useEffect to fetch categories on mount:
+    useEffect(() => {
+        fetchCategories()
+    }, [])
+
+    // Add fetch function:
+    const fetchCategories = async () => {
+        setLoadingCategories(true)
+        try {
+            const res = await fetch('/api/admin/categories')
+            if (res.ok) {
+                const data = await res.json()
+                const options = data.categories
+                    .filter((cat: any) => cat.isActive) // Only show active categories
+                    .map((cat: any) => ({
+                        value: cat.slug,
+                        label: cat.name
+                    }))
+                setCategoryOptions(options)
+            }
+        } catch (error) {
+            console.error('Failed to fetch categories:', error)
+        } finally {
+            setLoadingCategories(false)
+        }
+    }
 
     // Fetch subcategories when categories change
     useEffect(() => {
@@ -354,6 +395,55 @@ export default function ListingForm({
         })
     }
 
+    // 🆕 Handle FAQs
+    const addFaq = () => {
+        setFormData({
+            ...formData,
+            faqs: [...formData.faqs, { question: '', answer: '' }]
+        })
+    }
+
+    const updateFaq = (index: number, field: 'question' | 'answer', value: string) => {
+        const newFaqs = [...formData.faqs]
+        newFaqs[index] = { ...newFaqs[index], [field]: value }
+        setFormData({ ...formData, faqs: newFaqs })
+    }
+
+    const removeFaq = (index: number) => {
+        setFormData({
+            ...formData,
+            faqs: formData.faqs.filter((_, i) => i !== index)
+        })
+    }
+
+    // 🆕 Handle Reviews
+    const addReview = () => {
+        setFormData({
+            ...formData,
+            reviews: [...formData.reviews, {
+                title: '',
+                comment: '',
+                name: '',
+                designation: '',
+                rating: 5,
+                date: new Date().toISOString().split('T')[0]
+            }]
+        })
+    }
+
+    const updateReview = (index: number, field: string, value: string | number) => {
+        const newReviews = [...formData.reviews]
+        newReviews[index] = { ...newReviews[index], [field]: value }
+        setFormData({ ...formData, reviews: newReviews })
+    }
+
+    const removeReview = (index: number) => {
+        setFormData({
+            ...formData,
+            reviews: formData.reviews.filter((_, i) => i !== index)
+        })
+    }
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         await onSubmit(formData)
@@ -424,14 +514,16 @@ export default function ListingForm({
                                         </label>
                                         <Select
                                             options={categoryOptions}
-                                            placeholder="Select categories..."
+                                            placeholder={loadingCategories ? "Loading categories..." : "Select categories..."}
                                             className="categories"
-                                            isMulti // 🆕 Allow multiple selection
+                                            isMulti
                                             value={selectedCategories.map(cat => ({
                                                 value: cat.slug,
                                                 label: cat.name
                                             }))}
                                             onChange={handleCategoryChange}
+                                            isLoading={loadingCategories}
+                                            isDisabled={loadingCategories}
                                             required
                                             menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
                                             styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
@@ -475,10 +567,11 @@ export default function ListingForm({
                                 <div className="col-xl-12">
                                     <div className="form-group form-border">
                                         <label className="lableTitle">
-                                            SubCategory / Specialization *
+                                            SubCategories / Specialization *
                                             <BsPatchQuestionFill className="lableTip ms-1" title="Specific business type or specialization" />
                                         </label>
                                         <CreatableSelect
+                                            isMulti
                                             options={subCategoryOptions}
                                             placeholder={
                                                 selectedCategories.length === 0
@@ -488,33 +581,44 @@ export default function ListingForm({
                                                         : "Type or select subcategory..."
                                             }
                                             className="subcategories"
-                                            value={
-                                                formData.subCategory
-                                                    ? { value: formData.subCategory, label: formData.subCategory }
-                                                    : null
-                                            }
-                                            onChange={(option: any) => {
+                                            // 1. Map string[] to {label, value} objects for display
+                                            value={formData.subCategories.map(tag => ({
+                                                label: tag,
+                                                value: tag
+                                            }))}
+
+                                            // 2. 🟢 FIX: Add ': any' to newValue to fix the TypeScript error
+                                            onChange={(newValue: any) => {
+                                                // newValue is an array of objects: [{label: 'A', value: 'A'}, ...]
+                                                // We map it back to a simple string array: ['A']
+                                                const tags = newValue.map((option: any) => option.value);
                                                 setFormData({
                                                     ...formData,
-                                                    subCategory: option?.value || ''
+                                                    subCategories: tags
                                                 })
                                             }}
+
+                                            // 3. Handle typing/searching
                                             onInputChange={(inputValue) => {
                                                 if (inputValue.length >= 2) {
                                                     fetchSubCategories(inputValue)
                                                 }
                                             }}
+
+                                            // 4. Handle creating a NEW option (when they press Enter on a new word)
                                             onCreateOption={(inputValue) => {
+                                                const newTags = [...formData.subCategories, inputValue];
                                                 setFormData({
                                                     ...formData,
-                                                    subCategory: inputValue
+                                                    subCategories: newTags
                                                 })
                                             }}
+
                                             formatCreateLabel={(inputValue) => `Create "${inputValue}"`}
                                             isDisabled={selectedCategories.length === 0}
                                             isLoading={loadingSubCategories}
                                             isClearable
-                                            required
+                                            required={formData.subCategories.length === 0}
                                             menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
                                             styles={{
                                                 menuPortal: base => ({ ...base, zIndex: 9999 }),
@@ -1267,6 +1371,292 @@ export default function ListingForm({
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* 🆕 9. FAQs (PREMIUM) */}
+            <div className="row align-items-start g-4 mb-lg-5 mb-4">
+                <div className="col-xl-12">
+                    <div className="card rounded-3 shadow-sm">
+                        <div className="card-header py-4 px-4 d-flex align-items-center justify-content-between">
+                            <h4 className="fs-5 fw-medium mb-0">
+                                <BsPatchQuestionFill className="text-primary me-2" />
+                                FAQs (Premium Feature)
+                            </h4>
+                            <div className="form-check form-switch">
+                                <input
+                                    className="form-check-input"
+                                    type="checkbox"
+                                    id="enableFaqs"
+                                    checked={formData.enableFaqs}
+                                    onChange={(e) => setFormData({ ...formData, enableFaqs: e.target.checked })}
+                                />
+                                <label className="form-check-label" htmlFor="enableFaqs">
+                                    Enable FAQs
+                                </label>
+                            </div>
+                        </div>
+                        {formData.enableFaqs && (
+                            <div className="card-body">
+                                <p className="text-muted mb-4">
+                                    Add frequently asked questions to help customers learn more about your business.
+                                </p>
+
+                                {formData.faqs.map((faq, index) => (
+                                    <div key={index} className="border rounded-3 p-3 mb-3 bg-light">
+                                        <div className="d-flex align-items-center justify-content-between mb-2">
+                                            <h6 className="mb-0">FAQ #{index + 1}</h6>
+                                            <button
+                                                type="button"
+                                                className="btn btn-sm btn-outline-danger"
+                                                onClick={() => removeFaq(index)}
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
+                                        <div className="form-group mb-3">
+                                            <label className="lableTitle">Question *</label>
+                                            <input
+                                                type="text"
+                                                className="form-control rounded"
+                                                placeholder="e.g., What services do you offer?"
+                                                value={faq.question}
+                                                onChange={(e) => updateFaq(index, 'question', e.target.value)}
+                                                required={formData.enableFaqs}
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="lableTitle">Answer *</label>
+                                            <textarea
+                                                className="form-control rounded"
+                                                rows={3}
+                                                placeholder="Provide a detailed answer..."
+                                                value={faq.answer}
+                                                onChange={(e) => updateFaq(index, 'answer', e.target.value)}
+                                                required={formData.enableFaqs}
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+
+                                <button
+                                    type="button"
+                                    className="btn btn-outline-primary"
+                                    onClick={addFaq}
+                                >
+                                    + Add FAQ
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* 🆕 10. REVIEWS (PREMIUM) */}
+            <div className="row align-items-start g-4 mb-lg-5 mb-4">
+                <div className="col-xl-12">
+                    <div className="card rounded-3 shadow-sm">
+                        <div className="card-header py-4 px-4 d-flex align-items-center justify-content-between">
+                            <h4 className="fs-5 fw-medium mb-0">
+                                <i className="bi bi-star-fill text-warning me-2"></i>
+                                Customer Reviews (Premium Feature)
+                            </h4>
+                            <div className="form-check form-switch">
+                                <input
+                                    className="form-check-input"
+                                    type="checkbox"
+                                    id="enableReviews"
+                                    checked={formData.enableReviews}
+                                    onChange={(e) => setFormData({ ...formData, enableReviews: e.target.checked })}
+                                />
+                                <label className="form-check-label" htmlFor="enableReviews">
+                                    Enable Reviews
+                                </label>
+                            </div>
+                        </div>
+                        {formData.enableReviews && (
+                            <div className="card-body">
+                                <p className="text-muted mb-4">
+                                    Add customer testimonials and reviews to build trust with potential customers.
+                                </p>
+
+                                {formData.reviews.map((review, index) => (
+                                    <div key={index} className="border rounded-3 p-3 mb-3 bg-light">
+                                        <div className="d-flex align-items-center justify-content-between mb-3">
+                                            <h6 className="mb-0">Review #{index + 1}</h6>
+                                            <button
+                                                type="button"
+                                                className="btn btn-sm btn-outline-danger"
+                                                onClick={() => removeReview(index)}
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
+                                        <div className="row">
+                                            <div className="col-md-6">
+                                                <div className="form-group mb-3">
+                                                    <label className="lableTitle">Reviewer Name *</label>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control rounded"
+                                                        placeholder="e.g., Joseph K."
+                                                        value={review.name}
+                                                        onChange={(e) => updateReview(index, 'name', e.target.value)}
+                                                        required={formData.enableReviews}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="col-md-6">
+                                                <div className="form-group mb-3">
+                                                    <label className="lableTitle">Role/Company</label>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control rounded"
+                                                        placeholder="e.g., Hardware Supplier"
+                                                        value={review.designation}
+                                                        onChange={(e) => updateReview(index, 'designation', e.target.value)}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="col-md-6">
+                                                <div className="form-group mb-3">
+                                                    <label className="lableTitle">Rating *</label>
+                                                    <select
+                                                        className="form-select rounded"
+                                                        value={review.rating}
+                                                        onChange={(e) => updateReview(index, 'rating', parseInt(e.target.value))}
+                                                        required={formData.enableReviews}
+                                                    >
+                                                        <option value={5}>⭐⭐⭐⭐⭐ (5 Stars)</option>
+                                                        <option value={4}>⭐⭐⭐⭐ (4 Stars)</option>
+                                                        <option value={3}>⭐⭐⭐ (3 Stars)</option>
+                                                        <option value={2}>⭐⭐ (2 Stars)</option>
+                                                        <option value={1}>⭐ (1 Star)</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div className="col-md-6">
+                                                <div className="form-group mb-3">
+                                                    <label className="lableTitle">Date</label>
+                                                    <input
+                                                        type="date"
+                                                        className="form-control rounded"
+                                                        value={review.date || ''}
+                                                        onChange={(e) => updateReview(index, 'date', e.target.value)}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="col-12">
+                                                <div className="form-group mb-3">
+                                                    <label className="lableTitle">Review Title *</label>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control rounded"
+                                                        placeholder="e.g., Best Wholesale Prices for Hardware Shops"
+                                                        value={review.title}
+                                                        onChange={(e) => updateReview(index, 'title', e.target.value)}
+                                                        required={formData.enableReviews}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="col-12">
+                                                <div className="form-group">
+                                                    <label className="lableTitle">Review Comment *</label>
+                                                    <textarea
+                                                        className="form-control rounded"
+                                                        rows={3}
+                                                        placeholder="Customer's detailed review..."
+                                                        value={review.comment}
+                                                        onChange={(e) => updateReview(index, 'comment', e.target.value)}
+                                                        required={formData.enableReviews}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+
+                                <button
+                                    type="button"
+                                    className="btn btn-outline-primary"
+                                    onClick={addReview}
+                                >
+                                    + Add Review
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+            <div className="row align-items-start g-4 mb-lg-5 mb-4">
+                <div className="col-xl-12">
+                    <div className="card rounded-3 shadow-sm">
+                        <div className="card-header py-4 px-4">
+                            <h4 className="fs-5 fw-medium">
+                                <i className="bi bi-envelope-paper text-primary me-2"></i>
+                                Contact Form Integration (Optional)
+                            </h4>
+                        </div>
+                        <div className="card-body">
+                            <div className="alert alert-info mb-4">
+                                <strong>📋 How to get your GoHighLevel form URL:</strong>
+                                <ol className="mb-0 mt-2 ps-3">
+                                    <li>Log into your GoHighLevel account</li>
+                                    <li>Go to Sites → Funnels/Websites</li>
+                                    <li>Find your contact form and click "Get Embed Code"</li>
+                                    <li>Copy the URL from the iframe src attribute</li>
+                                    <li>Paste it below</li>
+                                </ol>
+                            </div>
+
+                            <div className="form-group form-border">
+                                <label className="lableTitle">
+                                    GoHighLevel Form Embed URL
+                                    <BsPatchQuestionFill
+                                        className="lableTip ms-1"
+                                        title="Paste the iframe src URL from your GoHighLevel form"
+                                    />
+                                </label>
+                                <input
+                                    type="url"
+                                    className="form-control rounded"
+                                    placeholder="https://api.leadconnectorhq.com/widget/form/XXXXXXXXXX"
+                                    value={formData.ghlFormUrl || ''}
+                                    onChange={(e) => setFormData({
+                                        ...formData,
+                                        ghlFormUrl: e.target.value
+                                    })}
+                                />
+                                <small className="text-muted mt-1 d-block">
+                                    Example: <code>https://api.leadconnectorhq.com/widget/form/abc123def456</code>
+                                </small>
+                                <small className="text-muted d-block">
+                                    This form will appear in the sidebar of your listing page, allowing visitors to contact you directly.
+                                </small>
+                            </div>
+
+                            {/* Preview */}
+                            {formData.ghlFormUrl && (
+                                <div className="mt-4">
+                                    <h6 className="mb-3">Form Preview:</h6>
+                                    <div className="border rounded" style={{ height: '400px', overflow: 'hidden' }}>
+                                        <iframe
+                                            src={formData.ghlFormUrl}
+                                            style={{
+                                                width: '100%',
+                                                height: '100%',
+                                                border: 'none'
+                                            }}
+                                            title="Form Preview"
+                                        />
+                                    </div>
+                                    <small className="text-muted d-block mt-2">
+                                        ✓ Form loaded successfully! This is how it will appear on your listing page.
+                                    </small>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

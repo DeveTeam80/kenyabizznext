@@ -1,16 +1,27 @@
+// src/app/components/list-detail/descriptions.tsx - WITH isPaid PROP
+
 import React from 'react'
 import Link from 'next/link'
 import { ListData } from '@/app/data/data';
 
 interface DescriptionsProps {
   listing: ListData;
+  isPaid?: boolean; // 🆕 Add isPaid prop
 }
 
-export default function Descriptions({ listing }: DescriptionsProps) {
+export default function Descriptions({ listing, isPaid = false }: DescriptionsProps) {
   return (
     <div className="listingSingleblock mb-4" id="descriptions">
       <div className="SingleblockHeader">
-        <Link data-bs-toggle="collapse" data-parent="#description" data-bs-target="#description" aria-controls="description" href="#" aria-expanded="false" className="collapsed">
+        <Link 
+          data-bs-toggle="collapse" 
+          data-parent="#description" 
+          data-bs-target="#description" 
+          aria-controls="description" 
+          href="#" 
+          aria-expanded="false" 
+          className="collapsed"
+        >
           <h4 className="listingcollapseTitle">Description</h4>
         </Link>
       </div>
@@ -23,6 +34,16 @@ export default function Descriptions({ listing }: DescriptionsProps) {
             ))
           ) : (
             <p>{listing.desc}</p>
+          )}
+
+          {/* 🆕 SEO: Add upgrade message for free listings */}
+          {!isPaid && (
+            <div className="alert alert-light border mt-4">
+              <p className="mb-0 text-muted small">
+                <strong>📌 Want to showcase your products/services?</strong> 
+                Upgrade to Premium to display your full product catalog with SEO optimization.
+              </p>
+            </div>
           )}
         </div>
       </div>

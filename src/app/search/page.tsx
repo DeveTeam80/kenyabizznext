@@ -1,8 +1,9 @@
+// Force dynamic rendering - data from API isn't available at build time
+export const dynamic = 'force-dynamic';
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
-// import NavbarDark from '@/app/components/navbar/navbar-dark'
 import NavbarServerWrapper from '@/app/components/navbar/navabar-server'
 import ListSidebarOne from '@/app/components/list-sidebar-one';
 import FooterTop from '@/app/components/footer-top';
@@ -12,7 +13,6 @@ import Pagination from '@/app/components/pagination';
 import Breadcrumb from '@/app/components/breadcrumb';
 import { BsSearch } from 'react-icons/bs';
 
-
 import {
     searchListings,
     getSubCategories,
@@ -21,7 +21,7 @@ import {
     SearchFilters
 } from '@/app/lib/data';
 import { ListData } from '@/app/data/data';
-import {  BsPatchCheckFill, BsStars, BsSuitHeart, BsTelephone } from 'react-icons/bs';
+import { BsPatchCheckFill, BsStars, BsSuitHeart } from 'react-icons/bs';
 
 interface SearchParams {
     q?: string;
@@ -74,12 +74,10 @@ export default async function SearchPage({
         const parts = [];
         if (searchFilters.query) parts.push(`"${searchFilters.query}"`);
         if (searchFilters.location && searchFilters.location !== 'all-kenya') {
-            // Capitalize first letter of location
             const location = searchFilters.location.charAt(0).toUpperCase() + searchFilters.location.slice(1);
             parts.push(`in ${location}`);
         }
         if (searchFilters.category && searchFilters.category !== 'all') {
-            // Find the category name from the slug
             const categoryName = searchFilters.category.split('-').map(word =>
                 word.charAt(0).toUpperCase() + word.slice(1)
             ).join(' ');
@@ -115,7 +113,7 @@ export default async function SearchPage({
                                         {currentPage > 1 && ` • Page ${currentPage} of ${totalPages}`}
                                     </p>
 
-                                    {/* Active filters display using theme classes */}
+                                    {/* Active filters display */}
                                     {(searchFilters.query || searchFilters.location || searchFilters.category || searchFilters.subCategory || searchFilters.featured || searchFilters.verified) && (
                                         <div className="row align-items-start mb-4">
                                             <div className="col-xl-12 col-lg-12 col-md-12">
@@ -124,111 +122,34 @@ export default async function SearchPage({
                                                     {searchFilters.query && (
                                                         <div className="alert tag-alert alert-light alert-dismissible fade show" role="alert">
                                                             <span>"{searchFilters.query}"</span>
-                                                            <Link
-                                                                href={`/search?${new URLSearchParams({
-                                                                    ...(searchFilters.location && { location: searchFilters.location }),
-                                                                    ...(searchFilters.category && { category: searchFilters.category }),
-                                                                    ...(searchFilters.subCategory && { subCategory: searchFilters.subCategory }),
-                                                                    ...(searchFilters.featured && { featured: 'true' }),
-                                                                    ...(searchFilters.verified && { verified: 'true' })
-                                                                }).toString()}`}
-                                                                className="btn-close"
-                                                                aria-label="Close"
-                                                            ></Link>
+                                                            <Link href={`/search?${new URLSearchParams({ ...(searchFilters.location && { location: searchFilters.location }), ...(searchFilters.category && { category: searchFilters.category }), ...(searchFilters.subCategory && { subCategory: searchFilters.subCategory }), ...(searchFilters.featured && { featured: 'true' }), ...(searchFilters.verified && { verified: 'true' }) }).toString()}`} className="btn-close" aria-label="Close"></Link>
                                                         </div>
                                                     )}
 
                                                     {searchFilters.location && searchFilters.location !== 'all-kenya' && (
                                                         <div className="alert tag-alert alert-light alert-dismissible fade show" role="alert">
                                                             <span>{searchFilters.location.charAt(0).toUpperCase() + searchFilters.location.slice(1)}</span>
-                                                            <Link
-                                                                href={`/search?${new URLSearchParams({
-                                                                    ...(searchFilters.query && { q: searchFilters.query }),
-                                                                    ...(searchFilters.category && { category: searchFilters.category }),
-                                                                    ...(searchFilters.subCategory && { subCategory: searchFilters.subCategory }),
-                                                                    ...(searchFilters.featured && { featured: 'true' }),
-                                                                    ...(searchFilters.verified && { verified: 'true' })
-                                                                }).toString()}`}
-                                                                className="btn-close"
-                                                                aria-label="Close"
-                                                            ></Link>
+                                                            <Link href={`/search?${new URLSearchParams({ ...(searchFilters.query && { q: searchFilters.query }), ...(searchFilters.category && { category: searchFilters.category }), ...(searchFilters.subCategory && { subCategory: searchFilters.subCategory }), ...(searchFilters.featured && { featured: 'true' }), ...(searchFilters.verified && { verified: 'true' }) }).toString()}`} className="btn-close" aria-label="Close"></Link>
                                                         </div>
                                                     )}
 
                                                     {searchFilters.category && searchFilters.category !== 'all' && (
                                                         <div className="alert tag-alert alert-light alert-dismissible fade show" role="alert">
-                                                            <span>{searchFilters.category.split('-').map(word =>
-                                                                word.charAt(0).toUpperCase() + word.slice(1)
-                                                            ).join(' ')}</span>
-                                                            <Link
-                                                                href={`/search?${new URLSearchParams({
-                                                                    ...(searchFilters.query && { q: searchFilters.query }),
-                                                                    ...(searchFilters.location && { location: searchFilters.location }),
-                                                                    ...(searchFilters.subCategory && { subCategory: searchFilters.subCategory }),
-                                                                    ...(searchFilters.featured && { featured: 'true' }),
-                                                                    ...(searchFilters.verified && { verified: 'true' })
-                                                                }).toString()}`}
-                                                                className="btn-close"
-                                                                aria-label="Close"
-                                                            ></Link>
+                                                            <span>{searchFilters.category.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</span>
+                                                            <Link href={`/search?${new URLSearchParams({ ...(searchFilters.query && { q: searchFilters.query }), ...(searchFilters.location && { location: searchFilters.location }), ...(searchFilters.subCategory && { subCategory: searchFilters.subCategory }), ...(searchFilters.featured && { featured: 'true' }), ...(searchFilters.verified && { verified: 'true' }) }).toString()}`} className="btn-close" aria-label="Close"></Link>
                                                         </div>
                                                     )}
 
                                                     {searchFilters.subCategory && (
                                                         <div className="alert tag-alert alert-light alert-dismissible fade show" role="alert">
                                                             <span>{searchFilters.subCategory}</span>
-                                                            <Link
-                                                                href={`/search?${new URLSearchParams({
-                                                                    ...(searchFilters.query && { q: searchFilters.query }),
-                                                                    ...(searchFilters.location && { location: searchFilters.location }),
-                                                                    ...(searchFilters.category && { category: searchFilters.category }),
-                                                                    ...(searchFilters.featured && { featured: 'true' }),
-                                                                    ...(searchFilters.verified && { verified: 'true' })
-                                                                }).toString()}`}
-                                                                className="btn-close"
-                                                                aria-label="Close"
-                                                            ></Link>
-                                                        </div>
-                                                    )}
-
-                                                    {searchFilters.featured && (
-                                                        <div className="alert tag-alert alert-light alert-dismissible fade show" role="alert">
-                                                            <span>Featured</span>
-                                                            <Link
-                                                                href={`/search?${new URLSearchParams({
-                                                                    ...(searchFilters.query && { q: searchFilters.query }),
-                                                                    ...(searchFilters.location && { location: searchFilters.location }),
-                                                                    ...(searchFilters.category && { category: searchFilters.category }),
-                                                                    ...(searchFilters.subCategory && { subCategory: searchFilters.subCategory }),
-                                                                    ...(searchFilters.verified && { verified: 'true' })
-                                                                }).toString()}`}
-                                                                className="btn-close"
-                                                                aria-label="Close"
-                                                            ></Link>
-                                                        </div>
-                                                    )}
-
-                                                    {searchFilters.verified && (
-                                                        <div className="alert tag-alert alert-light alert-dismissible fade show" role="alert">
-                                                            <span>Verified</span>
-                                                            <Link
-                                                                href={`/search?${new URLSearchParams({
-                                                                    ...(searchFilters.query && { q: searchFilters.query }),
-                                                                    ...(searchFilters.location && { location: searchFilters.location }),
-                                                                    ...(searchFilters.category && { category: searchFilters.category }),
-                                                                    ...(searchFilters.subCategory && { subCategory: searchFilters.subCategory }),
-                                                                    ...(searchFilters.featured && { featured: 'true' })
-                                                                }).toString()}`}
-                                                                className="btn-close"
-                                                                aria-label="Close"
-                                                            ></Link>
+                                                            <Link href={`/search?${new URLSearchParams({ ...(searchFilters.query && { q: searchFilters.query }), ...(searchFilters.location && { location: searchFilters.location }), ...(searchFilters.category && { category: searchFilters.category }), ...(searchFilters.featured && { featured: 'true' }), ...(searchFilters.verified && { verified: 'true' }) }).toString()}`} className="btn-close" aria-label="Close"></Link>
                                                         </div>
                                                     )}
 
                                                     <div className="clearList">
                                                         <Link href="/search" className="fw-medium text-primary text-md">Clear All</Link>
                                                     </div>
-
                                                 </div>
                                             </div>
                                         </div>
@@ -253,7 +174,6 @@ export default async function SearchPage({
                                                 <ul className="card rounded-0 p-0">
                                                     <li><a href="#" className="dropdown-item active">Best Match</a></li>
                                                     <li><a href="#" className="dropdown-item">Newest First</a></li>
-                                                    <li><a href="#" className="dropdown-item">A to Z</a></li>
                                                     <li><a href="#" className="dropdown-item">Featured First</a></li>
                                                 </ul>
                                             </div>
@@ -273,11 +193,6 @@ export default async function SearchPage({
                                             </div>
                                             <h5 className="mb-3">No results found</h5>
                                             <p className="text-muted mb-4">
-                                                {searchFilters.query
-                                                    ? `We couldn't find any businesses matching "${searchFilters.query}".`
-                                                    : 'No businesses match your current filters.'
-                                                }
-                                                <br />
                                                 Try adjusting your search terms or removing some filters.
                                             </p>
                                             <div className="d-flex gap-2 justify-content-center">
@@ -294,9 +209,11 @@ export default async function SearchPage({
                             ) : (
                                 <>
                                     <div className="row align-items-center justify-content-center g-xl-4 g-3">
-                                        {listings.map((item: ListData) => {
-                                            const primaryCategory = item.categories.find(cat => cat.isPrimary);
+                                        {listings.map((item: any) => {
+                                            const primaryCategory = item.categories.find((cat: any) => cat.isPrimary);
                                             const displayCategory = primaryCategory || item.categories[0];
+                                            // 🟢 FIX: Handle array of subcategories
+                                            const displaySubCategory = item.subCategories?.[0] || 'General';
 
                                             return (
                                                 <div className="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12" key={item.id}>
@@ -326,12 +243,7 @@ export default async function SearchPage({
                                                                     />
                                                                 </Link>
                                                                 <div className="position-absolute end-0 bottom-0 me-3 mb-3 z-2">
-                                                                    <Link
-                                                                        href={`/listings/${displayCategory?.slug}/${item.slug}`}
-                                                                        className="bookmarkList"
-                                                                        data-bs-toggle="tooltip"
-                                                                        data-bs-title="Save Listing"
-                                                                    >
+                                                                    <Link href={`/listings/${displayCategory?.slug}/${item.slug}`} className="bookmarkList">
                                                                         <BsSuitHeart className="m-0" />
                                                                     </Link>
                                                                 </div>
@@ -359,7 +271,8 @@ export default async function SearchPage({
                                                                                 href={`/listings/${displayCategory?.slug}/${item.slug}`}
                                                                                 className="d-flex align-items-center justify-content-start gap-2"
                                                                             >
-                                                                                <span className="catTitle">{displayCategory?.name || item.subCategory}</span>
+                                                                                {/* 🟢 Use the updated displaySubCategory variable */}
+                                                                                <span className="catTitle">{displayCategory?.name || displaySubCategory}</span>
                                                                             </Link>
                                                                         </div>
                                                                     </div>

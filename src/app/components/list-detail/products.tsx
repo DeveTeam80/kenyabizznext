@@ -25,7 +25,7 @@ export default function Products({ listing }: ProductsProps) {
           <h4 className="listingcollapseTitle">{listing.contentSectionTitle || 'Browse Products'}</h4>
         </Link>
       </div>
-      
+
       <div id="products" className="panel-collapse collapse show">
         <div className="card-body p-4 pt-2">
           <Swiper
@@ -38,8 +38,8 @@ export default function Products({ listing }: ProductsProps) {
             breakpoints={{
               320: { slidesPerView: 1 },
               640: { slidesPerView: 2 },
-              1024: { slidesPerView: 3 },
-              1440: { slidesPerView: 3 },
+              1024: { slidesPerView: 2 },
+              1440: { slidesPerView: 2 },
             }}
           >
             {listing.contentBlocks.map((item, index) => (
@@ -48,23 +48,23 @@ export default function Products({ listing }: ProductsProps) {
                   <div className="catalogThumb position-relative">
                     <Link href="#">
                       <figure>
-                        <Image 
-                          src={item.image} 
-                          width={0} 
-                          height={0} 
-                          sizes='100vw' 
-                          style={{ width: '100%', height: '200px', objectFit: 'cover' }} 
-                          className="img-fluid rounded-2" 
+                        <Image
+                          src={item.image}
+                          width={0}
+                          height={0}
+                          sizes='100vw'
+                          style={{ width: '100%', height: '200px', objectFit: 'cover' }}
+                          className="img-fluid rounded-2"
                           alt={item.title}
                         />
                       </figure>
                     </Link>
                   </div>
-                  
+
                   <div className="catalogCaps">
                     <div className="d-flex align-items-start justify-content-between gap-2">
                       <div className="catalogProducttitle">
-                        <h6 className="lh-base m-0">{item.title}</h6>
+                        <h2 className="fs-6 lh-base m-0">{item.title}</h2>
                         <p className="text-md m-0">{item.description}</p>
                       </div>
                     </div>

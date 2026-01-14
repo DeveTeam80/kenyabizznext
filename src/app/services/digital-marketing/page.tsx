@@ -1,12 +1,14 @@
 // src/app/services/digital-marketing/page.tsx
+// Force dynamic rendering - data from API isn't available at build time
+export const dynamic = 'force-dynamic';
 import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { MdArrowForwardIos } from 'react-icons/md'
-import { 
-  BsGlobe, 
-  BsSearch, 
-  BsMegaphone, 
+import {
+  BsGlobe,
+  BsSearch,
+  BsMegaphone,
   BsGraphUp,
 } from 'react-icons/bs'
 import { Metadata } from 'next'
@@ -104,9 +106,9 @@ export default function DigitalMarketingPage() {
       <NavbarServerWrapper />
 
       {/* Hero Section */}
-      <section 
-        className="bg-cover position-relative" 
-        style={{ backgroundImage: `url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1920&q=80')` }} 
+      <section
+        className="bg-cover position-relative"
+        style={{ backgroundImage: `url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1920&q=80')` }}
         data-overlay="6"
       >
         <div className="container">
@@ -141,7 +143,7 @@ export default function DigitalMarketingPage() {
                 <span className="badge badge-success rounded-pill mb-3">Our Services</span>
                 <h2 className="mb-3">Complete Digital Marketing Solutions for Kenyan Businesses</h2>
                 <p className="fs-6 text-muted">
-                  We help businesses establish and grow their online presence through strategic digital marketing. 
+                  We help businesses establish and grow their online presence through strategic digital marketing.
                   From getting listed on our directory to running comprehensive marketing campaigns, we've got you covered.
                 </p>
               </div>
@@ -160,7 +162,7 @@ export default function DigitalMarketingPage() {
                 <div key={index} className="col-xl-6 col-lg-6 col-md-12">
                   <div className="card border-0 rounded-4 p-4 h-100 shadow-sm">
                     <div className="d-flex align-items-start gap-3 mb-3">
-                      <div 
+                      <div
                         className="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
                         style={{
                           width: '60px',
@@ -176,7 +178,7 @@ export default function DigitalMarketingPage() {
                         <p className="text-muted mb-3">{service.description}</p>
                       </div>
                     </div>
-                    
+
                     <div className="mt-3">
                       <h6 className="fw-medium mb-3">What's Included:</h6>
                       <ul className="list-unstyled">

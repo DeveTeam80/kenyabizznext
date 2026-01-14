@@ -77,7 +77,7 @@ export async function GET(
         image: true,
         city: true,
         location: true,
-        subCategory: true,
+        subCategories: true,
         isVerified: true,
         featured: true,
         rating: true,

@@ -5,8 +5,7 @@ import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useParams } from 'next/navigation'
 import ListingForm, { ListingFormData } from '@/app/components/admin/listing-form'
-import { extractSubCategory, normalizeWorkingHours, is24_7Hours } from '@/app/lib/listing-helpers'
-
+import { normalizeWorkingHours, is24_7Hours } from '@/app/lib/listing-helpers'
 
 export default function EditListingPage() {
     const router = useRouter()
@@ -18,6 +17,7 @@ export default function EditListingPage() {
     const [saving, setSaving] = useState(false)
     const [error, setError] = useState('')
     const [success, setSuccess] = useState(false)
+    const [successMessage, setSuccessMessage] = useState('')
 
     useEffect(() => {
         fetchListing()
@@ -41,16 +41,17 @@ export default function EditListingPage() {
 
             const data = await res.json()
             const listing = data.listing
-           // 🆕 USE THE HELPER FUNCTIONS HERE
-      const subCategory = extractSubCategory(listing.categories)
-      const parsedHours = normalizeWorkingHours(listing.workingHours || [])
-      const is24_7 = is24_7Hours(listing.workingHours || [])
 
+            // Helper functions
+            const parsedHours = normalizeWorkingHours(listing.workingHours || [])
+            const is24_7 = is24_7Hours(listing.workingHours || [])
+
+            // 🟢 Prepare Initial Data
             setInitialData({
                 title: listing.title,
                 slug: listing.slug,
                 desc: listing.desc,
-                subCategory: subCategory, // 🆕 Use extracted slug
+                subCategories: listing.subCategories || [], // 🟢 Use array
                 logo: listing.logo,
                 image: listing.image,
                 bannerImage: listing.bannerImage,
@@ -64,11 +65,18 @@ export default function EditListingPage() {
                 locations: listing.locations || [],
                 contentSectionTitle: listing.contentSectionTitle || '',
                 contentBlocks: listing.contentBlocks || [],
-                workingHours: parsedHours, // 🆕 Use normalized hours
+                workingHours: parsedHours,
                 open24_7: is24_7,
                 tags: listing.tags || [],
                 socials: listing.socials || {},
                 locationConfirmation: listing.locationConfirmation,
+                // 🆕 FAQs and Reviews
+                faqs: listing.faqs || [],
+                enableFaqs: listing.enableFaqs || false,
+                reviews: listing.reviews || [],
+                enableReviews: listing.enableReviews || false,
+                  ghlFormUrl: listing.ghlFormUrl || '',
+
             })
         } catch (err: any) {
             setError(err.message)
@@ -82,8 +90,9 @@ export default function EditListingPage() {
         setSaving(true)
 
         try {
-            if (!data.title || !data.slug || !data.city || !data.desc || !data.call || !data.email) {
-                throw new Error('Please fill in all required fields')
+            // 🟢 Validation: Check subCategories array length
+            if (!data.title || !data.slug || !data.city || !data.desc || !data.call || !data.email || data.subCategories.length === 0) {
+                throw new Error('Please fill in all required fields (including at least one subcategory)')
             }
 
             if (!data.logo || !data.image || !data.bannerImage) {
@@ -99,18 +108,18 @@ export default function EditListingPage() {
                 bannerImage: data.bannerImage,
                 city: data.city,
                 location: data.location,
-                subCategory: data.subCategory,
+
+                // 🟢 Send Array
+                subCategories: data.subCategories,
+
                 call: data.call,
                 email: data.email,
                 website: data.website,
-                locationConfirmation: data.locationConfirmation, // 🆕 Include location confirmation
-                categories: [
-                    {
-                        slug: data.subCategory,
-                        name: data.subCategory,
-                        isPrimary: true
-                    }
-                ],
+                locationConfirmation: data.locationConfirmation,
+
+                // 🟢 Send actual categories
+                categories: data.categories,
+
                 fullDescription: data.fullDescription.filter(p => p.trim() !== ''),
                 locations: data.locations,
                 contentSectionTitle: data.contentSectionTitle,
@@ -125,6 +134,12 @@ export default function EditListingPage() {
                         })),
                 tags: data.tags,
                 socials: data.socials,
+                // 🆕 FAQs and Reviews
+                faqs: data.faqs || [],
+                enableFaqs: data.enableFaqs || false,
+                reviews: data.reviews || [],
+                enableReviews: data.enableReviews || false,
+                ghlFormUrl: data.ghlFormUrl || '',
             }
 
             const res = await fetch(`/api/listings/${listingId}`, {
@@ -139,6 +154,7 @@ export default function EditListingPage() {
                 throw new Error(responseData.error || 'Failed to update listing')
             }
 
+            setSuccessMessage(responseData.message || 'Listing updated successfully!')
             setSuccess(true)
 
             setTimeout(() => {
@@ -181,7 +197,7 @@ export default function EditListingPage() {
                             <i className="bi bi-check-circle fs-1 text-success"></i>
                         </div>
                         <h3 className="fw-semibold mb-3">Listing Updated Successfully!</h3>
-                        <p className="text-muted mb-4">Your changes have been submitted for admin re-approval.</p>
+                        <p className="text-muted mb-4">{successMessage}</p>
                         <Link href="/dashboard/my-listings" className="btn btn-primary fw-medium">
                             Back to My Listings
                         </Link>

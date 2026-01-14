@@ -49,12 +49,13 @@ export async function GET(request: NextRequest) {
     }
 
     // Build where clause
+    // Note: subCategories is a JSON array, so we can't use contains directly in WHERE
+    // We'll filter by JSON in JS after fetching
     const where: any = {
       approved: true,
       OR: [
         { title: { contains: query, mode: 'insensitive' } },
         { desc: { contains: query, mode: 'insensitive' } },
-        { subCategory: { contains: query, mode: 'insensitive' } },
         { city: { contains: query, mode: 'insensitive' } },
       ]
     }
@@ -73,7 +74,7 @@ export async function GET(request: NextRequest) {
         id: true,
         slug: true,
         title: true,
-        subCategory: true,
+        subCategories: true,
         categories: true,
       },
       take: 4,
@@ -87,11 +88,11 @@ export async function GET(request: NextRequest) {
     const suggestions: Suggestion[] = businessMatches.map(listing => {
       const primaryCategory = (listing.categories as any[])?.find(cat => cat.isPrimary)
       const displayCategory = primaryCategory || (listing.categories as any[])?.[0]
-      
+
       return {
         id: listing.id,
         title: listing.title,
-        category: displayCategory?.name || listing.subCategory,
+        category: displayCategory?.name || (listing.subCategories as string[])?.[0] || 'General',
         categorySlug: displayCategory?.slug || '',
         slug: listing.slug, // ✅ Business has slug
         type: 'business' as const
@@ -136,8 +137,8 @@ export async function GET(request: NextRequest) {
 
     suggestions.push(...categorySuggestions)
 
-    return NextResponse.json({ 
-      suggestions: suggestions.slice(0, 6) 
+    return NextResponse.json({
+      suggestions: suggestions.slice(0, 6)
     }, {
       headers: {
         'Cache-Control': 'public, s-maxage=60',

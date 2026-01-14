@@ -209,9 +209,9 @@ export async function getSubCategories(
     if (!res.ok) return []
 
     const data = await res.json()
-    // ✅ FIX: Cast the resulting array to string[]
+    // ✅ FIX: Flatten the subCategories arrays and get unique values
     const subCategories = [...new Set(
-      data.listings?.map((l: any) => l.subCategory).filter(Boolean) || []
+      data.listings?.flatMap((l: any) => l.subCategories || []).filter(Boolean) || []
     )] as string[]
 
     return subCategories.sort()

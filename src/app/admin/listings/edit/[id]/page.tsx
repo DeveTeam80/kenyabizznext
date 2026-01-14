@@ -5,8 +5,7 @@ import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useParams } from 'next/navigation'
 import ListingForm, { ListingFormData } from '@/app/components/admin/listing-form'
-import { extractSubCategory, normalizeWorkingHours, is24_7Hours } from '@/app/lib/listing-helpers'
-
+import { normalizeWorkingHours, is24_7Hours } from '@/app/lib/listing-helpers'
 
 export default function AdminEditListingPage() {
     const router = useRouter()
@@ -25,7 +24,6 @@ export default function AdminEditListingPage() {
 
     const fetchListing = async () => {
         try {
-            // Admin can fetch any listing (different from user edit)
             const res = await fetch(`/api/admin/listings/${listingId}`)
 
             if (!res.ok) {
@@ -38,15 +36,18 @@ export default function AdminEditListingPage() {
 
             const data = await res.json()
             const listing = data.listing
-            // 🆕 USE THE HELPER FUNCTIONS HERE
-      const subCategory = extractSubCategory(listing.categories)
-      const parsedHours = normalizeWorkingHours(listing.workingHours || [])
-      const is24_7 = is24_7Hours(listing.workingHours || [])
+
+            // Helpers for hours
+            const parsedHours = normalizeWorkingHours(listing.workingHours || [])
+            const is24_7 = is24_7Hours(listing.workingHours || [])
+
+            // 🟢 Prepare Initial Data
+            // We use listing.subCategories (array) directly now
             setInitialData({
                 title: listing.title,
                 slug: listing.slug,
                 desc: listing.desc,
-                subCategory: subCategory, // 🆕 Use extracted slug
+                subCategories: listing.subCategories || [], // 🟢 Updated to Array
                 logo: listing.logo,
                 image: listing.image,
                 bannerImage: listing.bannerImage,
@@ -60,11 +61,17 @@ export default function AdminEditListingPage() {
                 locations: listing.locations || [],
                 contentSectionTitle: listing.contentSectionTitle || '',
                 contentBlocks: listing.contentBlocks || [],
-                workingHours: parsedHours, // 🆕 Use normalized hours
+                workingHours: parsedHours,
                 open24_7: is24_7,
                 tags: listing.tags || [],
                 socials: listing.socials || {},
                 locationConfirmation: listing.locationConfirmation,
+                // 🆕 FAQs and Reviews
+                faqs: listing.faqs || [],
+                enableFaqs: listing.enableFaqs || false,
+                reviews: listing.reviews || [],
+                enableReviews: listing.enableReviews || false,
+                ghlFormUrl: listing.ghlFormUrl || '',
             })
         } catch (err: any) {
             setError(err.message)
@@ -78,8 +85,9 @@ export default function AdminEditListingPage() {
         setSaving(true)
 
         try {
-            if (!data.title || !data.slug || !data.city || !data.desc || !data.call || !data.email) {
-                throw new Error('Please fill in all required fields')
+            // 🟢 Validation: Check subCategories length instead of subCategory string
+            if (!data.title || !data.slug || !data.city || !data.desc || !data.call || !data.email || data.subCategories.length === 0) {
+                throw new Error('Please fill in all required fields (including at least one subcategory)')
             }
 
             const listingData = {
@@ -91,17 +99,20 @@ export default function AdminEditListingPage() {
                 bannerImage: data.bannerImage,
                 city: data.city,
                 location: data.location,
-                subCategory: data.subCategory,
+
+                // 🟢 Send the array
+                subCategories: data.subCategories,
+
                 call: data.call,
                 email: data.email,
                 website: data.website,
-                categories: [
-                    {
-                        slug: data.subCategory,
-                        name: data.subCategory,
-                        isPrimary: true
-                    }
-                ],
+                ghlFormUrl: data.ghlFormUrl || '',
+                // ghlSubAccountId: data.ghlSubAccountId || '',
+
+                // 🟢 Send the categories directly from the form state
+                // (Previously this was hacked to include the subcategory, but now we have real multi-select categories)
+                categories: data.categories,
+
                 fullDescription: data.fullDescription.filter(p => p.trim() !== ''),
                 locations: data.locations,
                 contentSectionTitle: data.contentSectionTitle,
@@ -116,6 +127,13 @@ export default function AdminEditListingPage() {
                         })),
                 tags: data.tags,
                 socials: data.socials,
+                // 🆕 Include location fields if needed for updates
+                locationConfirmation: data.locationConfirmation,
+                // 🆕 FAQs and Reviews
+                faqs: data.faqs || [],
+                enableFaqs: data.enableFaqs || false,
+                reviews: data.reviews || [],
+                enableReviews: data.enableReviews || false,
             }
 
             const res = await fetch(`/api/admin/listings/${listingId}`, {

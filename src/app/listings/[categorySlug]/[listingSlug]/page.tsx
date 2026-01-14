@@ -1,4 +1,5 @@
-// app/global-listings/[categorySlug]/[listingSlug]/page.tsx
+// app/listings/[categorySlug]/[listingSlug]/page.tsx - SIMPLIFIED
+export const dynamic = 'force-dynamic';
 
 import React from "react";
 import { Metadata } from "next";
@@ -18,6 +19,10 @@ import Footer from "@/app/components/footer/footer";
 import BackToTop from "@/app/components/back-to-top";
 import Breadcrumb from "@/app/components/breadcrumb";
 
+// 🆕 IMPORT PREMIUM COMPONENTS
+import FAQSection from "@/app/components/list-detail/faq-section";
+import ReviewsSection from "@/app/components/list-detail/reviews-section";
+
 import { FiArrowRight } from "react-icons/fi";
 import { FaLocationDot } from "react-icons/fa6";
 import { BsBriefcase, BsSendCheck, BsX } from "react-icons/bs";
@@ -29,7 +34,6 @@ import {
   ListingContext,
 } from "@/app/lib/data";
 
-// ✅ CORRECT: params must be a Promise in Next.js 15
 type PageProps = {
   params: Promise<{
     categorySlug: string;
@@ -38,7 +42,6 @@ type PageProps = {
 };
 
 export default async function SingleListingPage({ params }: PageProps) {
-  // ✅ Await the params
   const { categorySlug, listingSlug } = await params;
 
   const [listing, relatedListings, categoryDetails] = await Promise.all([
@@ -60,16 +63,14 @@ export default async function SingleListingPage({ params }: PageProps) {
     { label: listing.title, active: true },
   ];
 
+  const isPaid = listing.isPaid || false;
+
   return (
     <>
       <NavbarServerWrapper />
 
-      <section className="py-3 bg-light border-bottom">
-        <Breadcrumb items={breadcrumbItems} />
-      </section>
-
       <section
-        className="bg-cover position-relative ht-500 py-0"
+        className="bg-cover position-relative ht-300 py-0"
         style={{ backgroundImage: `url(${listing.bannerImage || listing.image})` }}
         data-overlay="4"
       >
@@ -82,15 +83,25 @@ export default async function SingleListingPage({ params }: PageProps) {
                     <div className="listingFirstinfo d-flex align-items-center justify-content-start gap-3 flex-wrap">
                       <div className="listingAvatar">
                         <Link href="#" className="d-block">
-                          <Image
-                            src={listing.logo}
-                            width={95}
-                            height={95}
-                            className="img-fluid rounded-3"
-                            alt="Avatar"
-                          />
+                          {isPaid && listing.logo ? (
+                            <Image
+                              src={listing.logo}
+                              width={95}
+                              height={95}
+                              className="img-fluid rounded-3"
+                              alt={listing.title}
+                            />
+                          ) : (
+                            <div
+                              className="d-flex align-items-center justify-content-center rounded-3 bg-white text-primary fw-bold"
+                              style={{ width: '95px', height: '95px', fontSize: '2.5rem' }}
+                            >
+                              {listing.title.charAt(0).toUpperCase()}
+                            </div>
+                          )}
                         </Link>
                       </div>
+
                       <div className="listingCaptioninfo">
                         <div className="propertyTitlename d-flex align-items-center gap-2 mb-1">
                           <h2 className="fw-semibold text-light mb-0">{listing.title}</h2>
@@ -108,16 +119,18 @@ export default async function SingleListingPage({ params }: PageProps) {
                         </div>
                         <div className="listingsbasicInfo">
                           <div className="d-flex align-items-center justify-content-start flex-wrap gap-2">
-                            <div className="flexItem me-2">
-                              <span className="text-md fw-medium text-light d-flex align-items-center">
-                                <FaLocationDot className="me-2" />
-                                {listing.location}
-                              </span>
-                            </div>
+                            {isPaid && (
+                              <div className="flexItem me-2">
+                                <span className="text-md fw-medium text-light d-flex align-items-center">
+                                  <FaLocationDot className="me-2" />
+                                  {listing.location}
+                                </span>
+                              </div>
+                            )}
                             <div className="flexItem me-2">
                               <span className="text-md fw-medium text-light d-flex align-items-center">
                                 <BsBriefcase className="me-2" />
-                                {displayCategory?.name || listing.subCategory}
+                                {displayCategory?.name || listing.subCategories?.[0] || 'General'}
                               </span>
                             </div>
                           </div>
@@ -128,21 +141,37 @@ export default async function SingleListingPage({ params }: PageProps) {
 
                   <div className="lastColumn">
                     <div className="d-flex align-items-center justify-content-md-end flex-wrap gap-3">
-                      <div className="flexStart Priceinfo d-flex flex-column">
-                        <span className="fw-medium text-light">Contact</span>
-                        <span className="fw-bold fs-6 text-light">{listing.call}</span>
-                      </div>
-                      <div className="flexlastButton">
-                        <button
-                          type="button"
-                          className="btn px-4 btn-whites text-primary fw-medium"
-                          data-bs-toggle="modal"
-                          data-bs-target="#messageModal"
-                        >
-                          <BsSendCheck className="me-2" />
-                          Send Message
-                        </button>
-                      </div>
+                      {isPaid ? (
+                        <>
+                          <div className="flexStart Priceinfo d-flex flex-column">
+                            <span className="fw-medium text-light">Contact</span>
+                            <span className="fw-bold fs-6 text-light">{listing.call}</span>
+                          </div>
+                          <div className="flexlastButton">
+                            <button
+                              type="button"
+                              className="btn px-4 btn-whites text-primary fw-medium"
+                              data-bs-toggle="modal"
+                              data-bs-target="#messageModal"
+                            >
+                              <BsSendCheck className="me-2" />
+                              Send Message
+                            </button>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="flexlastButton">
+                          <button
+                            type="button"
+                            className="btn px-4 btn-whites text-primary fw-medium"
+                            data-bs-toggle="modal"
+                            data-bs-target="#messageModal"
+                          >
+                            <BsSendCheck className="me-2" />
+                            Get In Touch
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -150,6 +179,10 @@ export default async function SingleListingPage({ params }: PageProps) {
             </div>
           </div>
         </div>
+      </section>
+
+      <section className="py-3 bg-light border-bottom">
+        <Breadcrumb items={breadcrumbItems} />
       </section>
 
       <section className="gray-simple pt-4 pt-xl-5">
@@ -163,13 +196,31 @@ export default async function SingleListingPage({ params }: PageProps) {
           <div className="container">
             <div className="row align-items-start gx-xl-5 g-4">
               <div className="col-xl-8 col-lg-8 col-md-12 col-sm-12">
-                <Descriptions listing={listing} />
-                <Products listing={listing} />
-                <Maps listing={listing} />
+                <Descriptions listing={listing} isPaid={isPaid} />
+
+                {isPaid && <Products listing={listing} />}
+
+                <Maps listing={listing} isPaid={isPaid} />
+
+                {isPaid && listing.enableFaqs && listing.faqs && (listing.faqs as any[]).length > 0 && (
+                  <FAQSection
+                    faqs={listing.faqs as any[]}
+                    businessName={listing.title}
+                  />
+                )}
+
+                {isPaid && listing.enableReviews && listing.reviews && (listing.reviews as any[]).length > 0 && (
+                  <ReviewsSection
+                    reviews={listing.reviews as any[]}
+                    businessName={listing.title}
+                  />
+                )}
+
                 <List relatedListings={relatedListings} />
               </div>
 
               <div className="col-xl-4 col-lg-4 col-md-12 col-sm-12">
+                {/* 🔥 SIDEBAR NOW CONTAINS GHL FORM */}
                 <SingleSidebarThree listing={listing} />
               </div>
             </div>
@@ -181,6 +232,7 @@ export default async function SingleListingPage({ params }: PageProps) {
       <Footer />
       <BackToTop />
 
+      {/* MODAL */}
       <div
         className="modal modal-lg fade"
         id="messageModal"
@@ -192,7 +244,7 @@ export default async function SingleListingPage({ params }: PageProps) {
           <div className="modal-content">
             <div className="modal-header bg-light border-0 px-md-5 d-flex justify-content-between">
               <h4 className="modal-title fw-medium" id="messageModalLabel">
-                Send Message to {listing.title}
+                {isPaid ? `Send Message to ${listing.title}` : 'Get In Touch'}
               </h4>
               <Link
                 href="#"
@@ -200,22 +252,39 @@ export default async function SingleListingPage({ params }: PageProps) {
                 aria-label="Close"
                 className="square--40 circle bg-light-danger text-danger"
               >
-                <BsX className="bi bi-x" />
+                <BsX />
               </Link>
             </div>
             <div className="modal-body p-md-5">
-              <div className="messageForm">
-                <div className="form-group form-border">
-                  <textarea
-                    className="form-control"
-                    placeholder={`Type your message to ${listing.title}`}
-                  ></textarea>
-                </div>
-                <button type="button" className="btn btn-primary fw-medium px-md-5">
-                  Send message
-                  <FiArrowRight className="ms-2" />
-                </button>
-              </div>
+              {(() => {
+                const freeFormUrl = process.env.NEXT_PUBLIC_GHL_FREE_FORM_URL;
+                // Only add query param for free forms, not paid custom forms
+                let formUrl = null;
+                if (listing.ghlFormUrl) {
+                  formUrl = listing.ghlFormUrl;
+                } else if (freeFormUrl) {
+                  const separator = freeFormUrl.includes('?') ? '&' : '?';
+                  formUrl = `${freeFormUrl}${separator}listing_name=${encodeURIComponent(listing.title)}`;
+                }
+
+                return formUrl ? (
+                  <iframe
+                    src={formUrl}
+                    style={{
+                      width: '100%',
+                      height: '500px',
+                      border: 'none'
+                    }}
+                    title={`Contact ${listing.title}`}
+                  />
+                ) : (
+                  <div className="alert alert-info">
+                    <p className="mb-0">
+                      Contact form not available. Please use the contact details in the sidebar.
+                    </p>
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </div>
@@ -224,9 +293,7 @@ export default async function SingleListingPage({ params }: PageProps) {
   );
 }
 
-// ✅ CORRECT: params must be a Promise
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  // ✅ Await the params
   const { categorySlug, listingSlug } = await params;
   return generateListingPageSEOMetadata(categorySlug, listingSlug, {
     context: ListingContext.LOCAL,

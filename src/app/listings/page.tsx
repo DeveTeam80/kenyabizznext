@@ -1,3 +1,6 @@
+// src/app/listings/page.tsx
+// Force dynamic rendering - data from API isn't available at build time
+export const dynamic = 'force-dynamic';
 import React from 'react';
 import { Metadata } from 'next';
 import { generateSEOMetadata } from '../../../lib/useSeo';
@@ -255,7 +258,7 @@ export default async function AllListingsPage({
                                                                                 href={`/listings/${displayCategory?.slug}/${item.slug}`}
                                                                                 className="d-flex align-items-center justify-content-start gap-2"
                                                                             >
-                                                                                <span className="catTitle">{displayCategory?.name || item.subCategory}</span>
+                                                                                <span className="catTitle">{displayCategory?.name || item.subCategories?.[0] || 'General'}</span>
                                                                             </Link>
                                                                         </div>
                                                                     </div>

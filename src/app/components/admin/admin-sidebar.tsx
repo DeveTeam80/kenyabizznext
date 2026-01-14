@@ -12,7 +12,8 @@ import {
     // Shared icon
     BsBoxArrowRight,
     // New icons for collapse/expand
-    BsChevronLeft, BsChevronRight
+    BsChevronLeft, BsChevronRight,
+    BsCash,BsGrid
 } from 'react-icons/bs'
 
 export default function AdminSidebar() {
@@ -77,6 +78,9 @@ export default function AdminSidebar() {
             { href: '/admin/listings?status=pending', icon: BsClock, label: 'Pending Listings' },
             { href: '/admin/listings?status=all', icon: BsList, label: 'All Listings' },
             { href: '/admin/users', icon: BsPerson, label: 'Users' },
+            { href: '/admin/categories', icon: BsGrid, label: 'Categories' },
+            { href: '/admin/payments', icon: BsCash, label: 'Payments' },
+
         ]
         : [
             { href: '/dashboard', icon: BsSpeedometer, label: 'Dashboard' },

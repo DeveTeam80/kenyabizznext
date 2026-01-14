@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/app/lib/db'
 import { requireAdmin } from '@/app/lib/auth'
+import { handleApiError } from '@/app/lib/api-error-handler'
 
 // GET - Admin can fetch any listing
 export async function GET(
@@ -34,12 +35,8 @@ export async function GET(
     }
 
     return NextResponse.json({ listing })
-  } catch (error: any) {
-    console.error('Admin get listing error:', error)
-    return NextResponse.json(
-      { error: error.message || 'Failed to fetch listing' },
-      { status: 500 }
-    )
+  } catch (error: unknown) {
+    return handleApiError(error, 'GET /api/admin/listings/[id]')
   }
 }
 
@@ -62,12 +59,8 @@ export async function PUT(
     })
 
     return NextResponse.json({ success: true, listing })
-  } catch (error: any) {
-    console.error('Admin update listing error:', error)
-    return NextResponse.json(
-      { error: error.message || 'Failed to update listing' },
-      { status: 500 }
-    )
+  } catch (error: unknown) {
+    return handleApiError(error, 'PUT /api/admin/listings/[id]')
   }
 }
 
@@ -86,11 +79,7 @@ export async function DELETE(
     })
 
     return NextResponse.json({ success: true })
-  } catch (error: any) {
-    console.error('Admin delete listing error:', error)
-    return NextResponse.json(
-      { error: error.message || 'Failed to delete listing' },
-      { status: 500 }
-    )
+  } catch (error: unknown) {
+    return handleApiError(error, 'DELETE /api/admin/listings/[id]')
   }
 }
