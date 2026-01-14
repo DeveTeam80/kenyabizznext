@@ -1,5 +1,6 @@
 // src/app/api/listings/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import prisma from '@/app/lib/db'
 import { requireAuth } from '@/app/lib/auth'
 import { checkRateLimit } from '@/app/lib/rate-limit'
@@ -12,6 +13,7 @@ import {
 import { securityLogger, SecurityEventType, getRequestInfo } from '@/app/lib/security-logger'
 import { processLocationData } from '@/app/lib/location-detection'
 import { handleApiError } from '@/app/lib/api-error-handler'
+import { deleteCloudinaryImage } from '@/app/lib/cloudinary'
 
 // 1. GET SINGLE LISTING
 export async function GET(
@@ -180,6 +182,25 @@ export async function PUT(
     // Only require re-approval if core fields changed
     const requiresReApproval = coreFieldsChanged && existingListing.approved
 
+    // 🆕 Delete old Cloudinary images if new ones are uploaded
+    const imagesToDelete: (string | null)[] = []
+    if (data.logo && data.logo !== existingListing.logo) {
+      imagesToDelete.push(existingListing.logo)
+    }
+    if (data.image && data.image !== existingListing.image) {
+      imagesToDelete.push(existingListing.image)
+    }
+    if (data.bannerImage && data.bannerImage !== existingListing.bannerImage) {
+      imagesToDelete.push(existingListing.bannerImage)
+    }
+
+    // Delete old images in background (don't wait)
+    if (imagesToDelete.length > 0) {
+      Promise.allSettled(imagesToDelete.map(url => deleteCloudinaryImage(url)))
+        .then(results => console.log('Cloudinary cleanup results:', results))
+        .catch(err => console.error('Cloudinary cleanup error:', err))
+    }
+
     // Update in Database
     const listing = await prisma.listing.update({
       where: { id: listingId },
@@ -231,6 +252,15 @@ export async function PUT(
       userId: session.userId,
       details: { action: 'update_listing', listingId: listing.id, requiresReApproval }
     })
+
+    // 🆕 Revalidate cache so changes appear immediately
+    const primaryCategory = (listing.categories as any[])?.find(c => c.isPrimary)?.slug || (listing.categories as any[])?.[0]?.slug
+    if (primaryCategory && listing.slug) {
+      revalidatePath(`/listings/${primaryCategory}/${listing.slug}`)
+      revalidatePath(`/global-listings/${primaryCategory}/${listing.slug}`)
+    }
+    revalidatePath('/listings')
+    revalidatePath('/global-listings')
 
     return NextResponse.json({
       success: true,
